@@ -118,6 +118,10 @@ class Forest extends Phaser.Scene{
   if(p.x>=this.levelLength-120&&this.boss&&!this.boss.active){document.getElementById('hint').innerHTML='¡Nivel 1 completado!';}
  }
 }
-const config={type:Phaser.AUTO,parent:'game',width:960,height:540,backgroundColor:'#080b09',pixelArt:false,physics:{default:'arcade',arcade:{gravity:{y:900},debug:false}},scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[Forest,Intro]};
+const config={type:Phaser.AUTO,parent:'game',width:960,height:540,backgroundColor:'#080b09',pixelArt:false,physics:{default:'arcade',arcade:{gravity:{y:900},debug:false}},scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[Intro,Forest]};
 window.cazadorGame=new Phaser.Game(config);
+window.cazadorGame.events.on('boot',()=>{console.info('[Cazador] Motor Phaser iniciado');});
+window.cazadorGame.events.on('ready',()=>{console.info('[Cazador] Motor Phaser listo');});
+window.addEventListener('error',e=>{console.error('[Cazador] Error de ejecución:',e.message,e.filename,e.lineno);});
+window.addEventListener('unhandledrejection',e=>{console.error('[Cazador] Error asíncrono:',e.reason);});
 </script></body></html>
