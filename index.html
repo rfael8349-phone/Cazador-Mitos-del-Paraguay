@@ -47,12 +47,15 @@ class Forest extends Phaser.Scene{
   this.gameOver=false;const overlay=document.getElementById('gameover');if(overlay)overlay.style.display='none';
   document.getElementById('hud').style.display='flex';document.getElementById('controls').style.display='flex';document.getElementById('hint').style.display='block';
   this.physics.world.setBounds(0,0,this.levelLength,540);
-  const bg=this.add.graphics();bg.setDepth(-20);bg.fillGradientStyle(0x101b16,0x101b16,0x33402a,0x33402a,1);bg.fillRect(0,0,this.levelLength,540);
-  for(let x=0;x<this.levelLength;x+=380){let h=150+(Math.sin(x*.017)*45);bg.fillStyle(0x203326,1);bg.fillTriangle(x,425,x+90,425-h,x+180,425);bg.fillTriangle(x+150,425,x+245,425-h*.8,x+340,425);bg.fillStyle(0x18271e,1);bg.fillRect(x+80,300,22,130);bg.fillRect(x+275,325,18,105)}
-  bg.fillStyle(0x59452b,1);bg.fillRect(0,445,this.levelLength,95);bg.fillStyle(0x819052,1);for(let x=0;x<this.levelLength;x+=32)bg.fillRect(x,442+(x%3),18,4);
+  // Fondo en segmentos pequeños: evita texturas/canvas gigantes que fallan en GPU móviles.
+  // Cada tramo mide como máximo 1920 px y conserva el bosque continuo al desplazarse la cámara.
+  for(let x=0;x<this.levelLength;x+=1920){
+   const width=Math.min(1920,this.levelLength-x);
+   this.add.tileSprite(x+width/2,270,width,540,'forestBg').setDepth(-20);
+  }
   // Texturas propias: suelo, protagonista, espíritu, bala y jefe.
   let g=this.make.graphics({x:0,y:0,add:false});g.fillStyle(0x59452b,1);g.fillRect(0,0,64,32);g.fillStyle(0x819052,1);g.fillRect(0,0,64,5);g.generateTexture('groundTile',64,32);g.destroy();
-  this.makeHunter();this.makeGhost();this.add.tileSprite(this.levelLength/2,270,this.levelLength,540,'forestBg').setDepth(-10);this.generatorStats={segments:0,enemies:0,ammo:0,platforms:0};
+  this.makeHunter();this.makeGhost();this.generatorStats={segments:0,enemies:0,ammo:0,platforms:0};
   this.ground=this.physics.add.staticGroup();for(let x=0;x<this.levelLength;x+=64)this.ground.create(x+32,462,'groundTile').refreshBody();
   this.player=this.physics.add.sprite(150,370,'hunterSprite').setDisplaySize(56,76).setCollideWorldBounds(true);this.player.body.setSize(28,54).setOffset(10,5);
   this.physics.add.collider(this.player,this.ground);
