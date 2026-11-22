@@ -30,3 +30,22 @@ Esta es una primera base de juego, no la versión final de los 30 niveles.
 - Disparo con J o botón ✦; salto con Espacio o botón ⬆.
 - Enemigos con resistencia, drops de munición y jefe final Ao Ao Mayor.
 - El tiempo y la distancia activan el encuentro final; el ritmo real depende de cuánto avance el jugador.
+
+
+## Estado del desarrollo — v0.2 (rama de trabajo)
+
+Esta rama añade un primer pase de atmósfera cinematográfica a la introducción:
+- Bandas de cine y viñeta para reforzar el encuadre.
+- Capas de niebla animada y partículas ambientales.
+- Variaciones de luz en escenas de amanecer y despertar.
+- Temblor de cámara breve en la secuencia de ataque.
+- Grano sutil para un acabado menos plano.
+
+### Pendiente antes de considerar el juego completo
+1. Sustituir las figuras provisionales por sprites originales finales del cazador, perro, Ao Ao y jefe.
+2. Crear animaciones completas (reposo, carrera, salto, daño, ataque y muerte).
+3. Añadir fondos por capas y escenarios diferenciados para cada nivel.
+4. Completar campaña, jefes, checkpoints, menús, pausa, opciones y guardado de progreso.
+5. Probar rendimiento y controles en iPhone, Android y tablets.
+
+La rama `release/v0.2-visual-polish` es una versión de trabajo; no se presenta como lanzamiento final.
