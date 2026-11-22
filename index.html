@@ -17,12 +17,14 @@
 <body><div id="game"></div><div id="hud"><span>CAZADOR · MITOS DEL PARAGUAY</span><span id="life">♥ ♥ ♥</span></div><div id="hint">Bosque del Yvyrá · Nivel 1<br>Encuentra y ahuyenta al espíritu del monte</div>
 <div id="controls"><div class="pad"><button class="ctrl" data-key="left">◀</button><button class="ctrl" data-key="right">▶</button></div><div class="pad"><button class="ctrl" data-key="jump">⬆</button><button class="ctrl" data-key="attack">✦</button></div></div>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+<script src="./intro.js"></script>
 <script>
 const keys={left:false,right:false,jump:false,attack:false};
 document.querySelectorAll('.ctrl').forEach(b=>{const k=b.dataset.key;const on=e=>{e.preventDefault();keys[k]=true};const off=e=>{e.preventDefault();keys[k]=false};b.addEventListener('pointerdown',on);['pointerup','pointercancel','pointerleave'].forEach(n=>b.addEventListener(n,off));});
 class Forest extends Phaser.Scene{
  constructor(){super('forest');this.hp=3;this.hitWait=0}
  create(){
+  document.getElementById('hud').style.display='flex';document.getElementById('controls').style.display='flex';document.getElementById('hint').style.display='block';
   const g=this.add.graphics();
   g.fillGradientStyle(0x17251b,0x17251b,0x34442a,0x34442a,1);g.fillRect(0,0,960,540);
   // moon and layered forest silhouettes
@@ -57,6 +59,6 @@ class Forest extends Phaser.Scene{
   if(this.enemy.x>900){this.enemy.x=900;document.getElementById('hint').innerHTML='¡El camino está despejado! Próximamente: más criaturas del Paraguay.'}
  }
 }
-const config={type:Phaser.AUTO,parent:'game',width:960,height:540,backgroundColor:'#17251b',pixelArt:true,physics:{default:'arcade',arcade:{gravity:{y:900},debug:false}},scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[Forest]};
+const config={type:Phaser.AUTO,parent:'game',width:960,height:540,backgroundColor:'#080b09',pixelArt:true,physics:{default:'arcade',arcade:{gravity:{y:900},debug:false}},scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[Intro,Forest]};
 new Phaser.Game(config);
 </script></body></html>
