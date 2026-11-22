@@ -56,25 +56,31 @@ class Forest extends Phaser.Scene{
   // Texturas propias: suelo, protagonista, espíritu, bala y jefe.
   let g=this.make.graphics({x:0,y:0,add:false});g.fillStyle(0x59452b,1);g.fillRect(0,0,64,32);g.fillStyle(0x819052,1);g.fillRect(0,0,64,5);g.generateTexture('groundTile',64,32);g.destroy();
   this.makeHunter();this.makeGhost();this.generatorStats={segments:0,enemies:0,ammo:0,platforms:0};
-  this.ground=this.physics.add.staticGroup();for(let x=0;x<this.levelLength;x+=64)this.ground.create(x+32,462,'groundTile').refreshBody();
+  this.ground=this.physics.add.staticGroup();for(let x=0;x<this.levelLength;x+=1024){const width=Math.min(1024,this.levelLength-x);const floor=this.ground.create(x+width/2,462,'groundTile');floor.setDisplaySize(width,32).refreshBody();}
   this.player=this.physics.add.sprite(150,370,'hunterSprite').setDisplaySize(56,76).setCollideWorldBounds(true);this.player.body.setSize(28,54).setOffset(10,5);this.playerBaseScaleX=this.player.scaleX;this.playerBaseScaleY=this.player.scaleY;
   this.physics.add.collider(this.player,this.ground);
   this.dog=this.add.container(112,405);this.drawDog(this.dog);
   this.cameras.main.setBounds(0,0,this.levelLength,540);this.cameras.main.startFollow(this.player,true,.08,.08);
   this.cursors=this.input.keyboard.createCursorKeys();this.wasd=this.input.keyboard.addKeys('A,D,W,SPACE,J,K');
-  // Generación determinista por tramos: plataformas, Ao Ao y suministros.
-  let seed=20261122;const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
-  for(let x=650;x<this.levelLength-1200;x+=560){
+  // Generación progresiva: solo crea contenido cerca del jugador para proteger la memoria del móvil.
+  this.nextSpawnX=650;
+  this.spawnWorldSegment=(x)=>{
+   const n=Math.floor(x/560)+20261122;let seed=(n*1664525+1013904223)>>>0;
+   const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
    this.generatorStats.segments++;
-   if(rnd()>.28){let y=350+Math.floor(rnd()*55);let e=this.physics.add.sprite(x,y,'aoaoSprite').setDisplaySize(54,68).setTint(0xb8c9ae);e.body.setAllowGravity(false);e.setData('hp',2);this.physics.add.overlap(this.player,e,()=>this.touchEnemy(e));e.setVelocityX(rnd()>.5?28:-28);e.setData('seedDirection',Math.sign(e.body.velocity.x));this.enemies.push(e);this.generatorStats.enemies++}
-   if(rnd()>.55){let a=this.physics.add.staticImage(x+220,405,'groundTile');a.setScale(1.8,.35).refreshBody();this.physics.add.collider(this.player,a);this.generatorStats.platforms++}
-   if(rnd()>.52){let item=this.physics.add.staticImage(x+300,405,'groundTile').setTint(0xe8c65a);item.setScale(.35,.35).refreshBody();item.setData('ammo',5);this.physics.add.overlap(this.player,item,()=>{if(item.active){this.ammo+=5;item.destroy();this.updateHud()}});this.loot.push(item);this.generatorStats.ammo++}
-  }
+   if(rnd()>.28){const y=350+Math.floor(rnd()*55);const e=this.physics.add.sprite(x,y,'aoaoSprite').setDisplaySize(54,68).setTint(0xb8c9ae);e.body.setAllowGravity(false);e.setData('hp',2);this.physics.add.overlap(this.player,e,()=>this.touchEnemy(e));e.setVelocityX(rnd()>.5?28:-28);e.setData('seedDirection',Math.sign(e.body.velocity.x));this.enemies.push(e);this.generatorStats.enemies++;}
+   if(rnd()>.55){const a=this.physics.add.staticImage(x+220,405,'groundTile');a.setScale(1.8,.35).refreshBody();this.physics.add.collider(this.player,a);this.generatorStats.platforms++;}
+   if(rnd()>.52){const item=this.physics.add.staticImage(x+300,405,'groundTile').setTint(0xe8c65a);item.setScale(.35,.35).refreshBody();item.setData('ammo',5);this.physics.add.overlap(this.player,item,()=>{if(item.active){this.ammo+=5;item.destroy();this.updateHud();}});this.loot.push(item);this.generatorStats.ammo++;}
+  };
   this.ammo=24;this.weaponIndex=0;this.weapons=[{id:'rifle',name:'ESCOPETA',symbol:'⌁',reach:0,damage:1},{id:'machete',name:'MACHETE',symbol:'⚔',reach:100,damage:3},{id:'rebenque',name:'ARREADOR',symbol:'〰',reach:138,damage:1},{id:'fists',name:'PUÑOS',symbol:'✊',reach:52,damage:1}];this.weaponCooldown=0;this.swingTime=0;this.weaponWasDown=false;this.blessingLevel=0;this.macheteDamageBonus=0;this.blessings=[];this.dogState='FOLLOW';this.dogThink=0;this.dogAttackWait=0;this.dogIdle=0;this.lastPlayerX=this.player.x;this.dogItems=[];this.ambushIndex=0;this.ambushMarks=[4200,11200,20500,29200];this.weaponText=this.add.text(24,62,'',{fontFamily:'monospace',fontSize:'13px',color:'#ffe3a0',backgroundColor:'#18251ddd',padding:{x:8,y:5}}).setScrollFactor(0);this.weaponFx=this.add.graphics();this.dogSignal=this.add.text(0,0,'',{fontFamily:'sans-serif',fontSize:'20px',color:'#ffdf91',stroke:'#101812',strokeThickness:4}).setDepth(1000);// Altares de bendición: recompensan la exploración y mejoran el machete de forma acumulativa.
   for(const x of [7800,17800,27800]){const altar=this.physics.add.staticImage(x,408,'bullet').setTint(0xb79aff).setScale(2.2).refreshBody();altar.setData('blessing',true);this.physics.add.overlap(this.player,altar,()=>{if(altar.active){altar.destroy();this.grantBlessing();}});this.blessings.push(altar);}
+  // Ambiente vivo de bajo coste: luciérnagas y bruma tenue en primer plano.
+  this.ambient=this.add.container(0,0).setScrollFactor(0).setDepth(450);
+  for(let i=0;i<12;i++){const mote=this.add.circle(30+(i*79)%900,110+(i*47)%300,1.5+(i%3)*.6,0xd9d99a,.45);this.ambient.add(mote);this.tweens.add({targets:mote,y:mote.y-18-(i%4)*8,alpha:.12,duration:1800+(i%5)*320,yoyo:true,repeat:-1,delay:i*130,ease:'Sine.easeInOut'});}
+  const shade=this.add.graphics().setScrollFactor(0).setDepth(440);shade.fillStyle(0x07100b,.12);shade.fillRect(0,0,960,540);
   this.updateHud();this.updateWeaponHud();
   this.add.text(24,495,'◀ ▶ MOVER   ⬆ SALTAR   ✦ DISPARAR   ·   TECLADO: A/D + ESPACIO + J',{fontFamily:'monospace',fontSize:'13px',color:'#f4e8c8'}).setScrollFactor(0).setAlpha(.95);
-  this.add.text(24,38,'MONTE PROCEDURAL · '+this.generatorStats.segments+' TRAMOS · '+this.generatorStats.enemies+' AO AO · '+this.generatorStats.ammo+' SUMINISTROS',{fontFamily:'monospace',fontSize:'11px',color:'#c6d4a1'}).setScrollFactor(0).setAlpha(.9);
+  this.add.text(24,38,'MONTE VIVO · ENCUENTROS POR ZONAS',{fontFamily:'monospace',fontSize:'11px',color:'#c6d4a1'}).setScrollFactor(0).setAlpha(.9);
   this.timerText=this.add.text(480,18,'FASE: 00:00 / 03:20',{fontFamily:'monospace',fontSize:'15px',color:'#f4e8c8'}).setOrigin(.5,0).setScrollFactor(0);
   this.ammoText=this.add.text(800,38,'✦ '+this.ammo,{fontFamily:'monospace',fontSize:'14px',color:'#f4e8c8'}).setScrollFactor(0);
  }
@@ -102,6 +108,7 @@ class Forest extends Phaser.Scene{
   if(!this.player.active)return;this.elapsed+=dt;this.shotWait=Math.max(0,this.shotWait-dt);this.hitWait=Math.max(0,this.hitWait-dt);this.weaponCooldown=Math.max(0,this.weaponCooldown-dt);
   const p=this.player,pad=readGamepad(),left=keys.left||pad.left||this.cursors.left.isDown||this.wasd.A.isDown,right=keys.right||pad.right||this.cursors.right.isDown||this.wasd.D.isDown,jump=keys.jump||pad.jump||this.cursors.up.isDown||this.wasd.W.isDown||this.wasd.SPACE.isDown,fire=keys.attack||pad.attack||this.wasd.J.isDown||this.wasd.K.isDown;
   p.setVelocityX(left?-190:right?190:0);p.setFlipX(left);if(this.swingTime<=0){const moving=left||right;p.setRotation(moving?Math.sin(t*.024)*.035:Math.sin(t*.003)*.005);p.setScale(this.playerBaseScaleX,this.playerBaseScaleY*(1+(moving?Math.abs(Math.sin(t*.024))*.018:Math.sin(t*.004)*.006)));}if(jump&&p.body.blocked.down)p.setVelocityY(-440);const weaponDown=keys.weapon||this.wasd.L.isDown;if(weaponDown&&!this.weaponWasDown)this.cycleWeapon();this.weaponWasDown=weaponDown;if(fire){if(this.weapons[this.weaponIndex].id==='rifle')this.shoot();else this.meleeAttack();}if(this.swingTime>0){this.swingTime=Math.max(0,this.swingTime-dt);const dir=p.getData('swingFacing')||1;const total=this.swingKind==='machete'?390:this.swingKind==='rebenque'?320:270;const progress=1-this.swingTime/total;const windup=progress<.28;const strike=progress>=.28&&progress<.78;const recover=progress>=.78;p.setRotation(dir*(windup?-.22: strike?(.48*Math.sin((progress-.28)/.5*Math.PI)):.12*(1-progress)));this.weaponFx.clear();this.weaponFx.lineStyle(this.swingKind==='rebenque'?5:8,this.swingKind==='machete'?0xd9d6c4:0x9c7548,strike?.95:.35);this.weaponFx.beginPath();const start=dir===1?-1.25:Math.PI-1.25;const end=dir===1?1.05:Math.PI+1.05;const radius=this.swingKind==='machete'?68:this.swingKind==='rebenque'?100:42;for(let i=0;i<=18;i++){const u=i/18;const a=start+(end-start)*u;const wobble=Math.sin(u*Math.PI)*8;const x=p.x+dir*18+Math.cos(a)*(radius+wobble);const y=p.y-9+Math.sin(a)*(radius+wobble);if(i===0)this.weaponFx.moveTo(x,y);else this.weaponFx.lineTo(x,y);}this.weaponFx.strokePath();}else{p.setRotation(0);this.weaponFx.clear();}this.updateDog(dt);
+  while(this.nextSpawnX<p.x+1450&&this.nextSpawnX<this.levelLength-1200){this.spawnWorldSegment(this.nextSpawnX);this.nextSpawnX+=560;}
   for(const e of this.enemies){if(e.active){if(Math.abs(e.x-p.x)<420){e.setVelocityX(e.x<p.x?58:-58)}else{e.setVelocityX(28*e.getData('seedDirection'))}}}
   const sec=Math.min(200,Math.floor(this.elapsed/1000)),m=String(Math.floor(sec/60)).padStart(2,'0'),s=String(sec%60).padStart(2,'0');this.timerText.setText('FASE: '+m+':'+s+' / 03:20');
   if(this.ambushIndex<this.ambushMarks.length&&p.x>this.ambushMarks[this.ambushIndex]){this.spawnAmbush();this.ambushIndex++;}if(this.ambushActive>0)this.ambushActive-=dt;
