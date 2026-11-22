@@ -1,15 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="96" height="128" viewBox="0 0 96 128">
-<defs><linearGradient id="poncho" x2="1" y2="1"><stop stop-color="#b9a17a"/><stop offset=".5" stop-color="#72523b"/><stop offset="1" stop-color="#302b24"/></linearGradient><linearGradient id="skin" x2="1"><stop stop-color="#d2a078"/><stop offset="1" stop-color="#80583d"/></linearGradient></defs>
-<ellipse cx="49" cy="121" rx="32" ry="5" fill="#080b08" opacity=".5"/>
-<path d="M28 81L25 115 39 116 45 91 51 116 66 116 64 78Z" fill="#29231d"/>
-<path d="M23 111h19l3 9H21zm31 0h18l5 9H53z" fill="#171613"/>
-<path d="M28 48Q46 38 67 48L78 91Q51 105 17 91Z" fill="url(#poncho)" stroke="#2a241c" stroke-width="2"/>
-<path d="M26 58L69 58M22 72L74 72M19 86L77 86" stroke="#d2b98a" stroke-opacity=".48" stroke-width="2"/>
-<path d="M37 42Q36 26 48 23Q61 25 62 43L57 55H40Z" fill="url(#skin)"/>
-<path d="M31 30Q34 7 51 10Q69 12 68 31L58 26 40 28Z" fill="#33271d"/>
-<path d="M25 26Q47 17 73 27L78 33Q48 29 22 35Z" fill="#61472d" stroke="#241d16" stroke-width="2"/>
-<path d="M41 39q5 3 10 0" fill="none" stroke="#4b3024" stroke-width="2"/>
-<path d="M39 55L17 79 24 85 43 68M60 55L77 75 70 82 55 67" fill="none" stroke="url(#skin)" stroke-width="9" stroke-linecap="round"/>
-<path d="M44 66L76 48" stroke="#29231d" stroke-width="5" stroke-linecap="round"/><path d="M73 48l15-20" stroke="#aeb5a7" stroke-width="6" stroke-linecap="round"/>
-<path d="M37 91L33 118M59 92L65 118" stroke="#30251d" stroke-width="8"/>
+<defs>
+ <linearGradient id="skin" x2="1" y2="1"><stop stop-color="#e0b58a"/><stop offset=".55" stop-color="#b77e57"/><stop offset="1" stop-color="#70452f"/></linearGradient>
+ <linearGradient id="cloth" x2="1" y2="1"><stop stop-color="#c8b58d"/><stop offset=".48" stop-color="#8d7657"/><stop offset="1" stop-color="#403a2d"/></linearGradient>
+ <linearGradient id="leather" x2="0" y2="1"><stop stop-color="#795338"/><stop offset="1" stop-color="#2b2119"/></linearGradient>
+ <linearGradient id="steel" x2="1"><stop stop-color="#d7d9ce"/><stop offset=".5" stop-color="#68716c"/><stop offset="1" stop-color="#252d2b"/></linearGradient>
+ <filter id="shadow"><feGaussianBlur stdDeviation="2"/></filter>
+</defs>
+<ellipse cx="48" cy="122" rx="29" ry="4" fill="#080b08" opacity=".55" filter="url(#shadow)"/>
+<!-- botas y pantalón -->
+<path d="M29 83L25 112 39 117 47 91 52 116 69 113 65 80Z" fill="#29251f" stroke="#171512" stroke-width="2"/>
+<path d="M23 108L41 111 45 121 20 122 17 117Z M53 109L70 106 78 118 55 122Z" fill="url(#leather)" stroke="#1b1713" stroke-width="2"/>
+<path d="M23 116h19M57 116h16" stroke="#b28b5d" stroke-width="2"/>
+<!-- torso y poncho -->
+<path d="M27 43Q46 35 67 44L79 91Q50 108 15 91Z" fill="url(#cloth)" stroke="#2c281f" stroke-width="2.5"/>
+<path d="M21 55Q48 64 74 54M18 69Q48 79 77 68M17 83Q47 94 78 82" fill="none" stroke="#e1cfaa" stroke-width="2.2" opacity=".7"/>
+<path d="M28 47L17 91M68 47L79 91" stroke="#403629" stroke-width="2"/>
+<path d="M37 47L45 96M58 46L51 97" stroke="#5d2e28" stroke-width="2" opacity=".8"/>
+<!-- pañuelo y cuello -->
+<path d="M36 42L48 53 61 41 65 54 49 66 32 54Z" fill="#762e2a" stroke="#3b211d" stroke-width="2"/>
+<!-- brazos -->
+<path d="M29 51L12 73 18 83 40 66M66 50L83 68 77 79 57 65" fill="none" stroke="url(#skin)" stroke-width="10" stroke-linecap="round"/>
+<path d="M14 77L22 84M76 74L82 79" stroke="#4b3324" stroke-width="5" stroke-linecap="round"/>
+<!-- cara -->
+<path d="M37 24Q38 12 49 12Q62 13 62 28L58 46Q48 54 38 43Z" fill="url(#skin)" stroke="#563b2b" stroke-width="1.5"/>
+<path d="M39 31Q43 28 47 31M53 31Q57 28 60 31" stroke="#33251e" stroke-width="2" fill="none"/>
+<path d="M47 37Q51 39 55 36" stroke="#69402d" stroke-width="1.5" fill="none"/>
+<path d="M39 42Q49 49 59 41" stroke="#34251d" stroke-width="3" fill="none"/>
+<!-- pelo y sombrero piri -->
+<path d="M37 24Q35 13 45 8Q59 5 65 19L62 28 54 22 42 25Z" fill="#30251d"/>
+<path d="M22 20Q48 11 76 20L82 26Q49 29 17 27Z" fill="#927247" stroke="#3e2d1d" stroke-width="2"/>
+<path d="M30 20Q48 15 69 20" fill="none" stroke="#d1b17c" stroke-width="2"/>
+<path d="M48 13L49 21" stroke="#57402a" stroke-width="2"/>
+<!-- escopeta cruzada -->
+<path d="M63 65L88 36" stroke="#27231d" stroke-width="6" stroke-linecap="round"/>
+<path d="M84 34L92 25" stroke="url(#steel)" stroke-width="4" stroke-linecap="round"/>
+<path d="M58 71L66 62" stroke="#b28b5d" stroke-width="3"/>
+<!-- cinturón y cartuchera -->
+<path d="M19 83Q48 94 77 82" stroke="#30241a" stroke-width="6" fill="none"/>
+<rect x="63" y="83" width="12" height="18" rx="2" fill="url(#leather)" stroke="#1d1712"/>
+<path d="M66 86v8m4-8v8" stroke="#d1ad70" stroke-width="2"/>
 </svg>
