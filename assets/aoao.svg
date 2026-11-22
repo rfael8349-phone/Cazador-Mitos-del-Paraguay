@@ -1,8 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="90" height="112" viewBox="0 0 90 112">
-<defs><linearGradient id="spirit" x2="1"><stop stop-color="#b9c2a5"/><stop offset=".55" stop-color="#586653"/><stop offset="1" stop-color="#202b24"/></linearGradient></defs>
-<path d="M17 105Q8 78 18 50Q8 24 31 15L42 3 52 18Q82 15 79 49Q90 77 74 105L61 94 48 110 36 94Z" fill="url(#spirit)" stroke="#111a15" stroke-width="3"/>
-<path d="M22 42Q34 29 45 40Q57 27 71 43L65 58Q46 69 27 57Z" fill="#172019"/>
-<ellipse cx="34" cy="47" rx="5" ry="7" fill="#e8c978"/><ellipse cx="60" cy="47" rx="5" ry="7" fill="#e8c978"/>
-<path d="M33 73Q46 64 60 73L55 84 39 84Z" fill="#201b17"/>
-<path d="M26 90L11 108M66 91L81 108" stroke="#a8b49a" stroke-width="5" stroke-linecap="round"/>
+<defs>
+ <linearGradient id="spirit" x2="1" y2="1"><stop stop-color="#d0d4b6"/><stop offset=".36" stop-color="#87947b"/><stop offset=".72" stop-color="#465447"/><stop offset="1" stop-color="#1c2923"/></linearGradient>
+ <linearGradient id="horn" x2="0" y2="1"><stop stop-color="#d6c6a1"/><stop offset="1" stop-color="#675b42"/></linearGradient>
+ <filter id="mist"><feGaussianBlur stdDeviation="2"/></filter>
+</defs>
+<ellipse cx="45" cy="106" rx="30" ry="4" fill="#080b08" opacity=".5" filter="url(#mist)"/>
+<!-- silueta -->
+<path d="M16 105Q7 85 15 63Q5 42 17 26L31 18 41 4 49 20Q71 11 80 34Q91 55 78 75L75 103 62 94 49 110 35 94 24 108Z" fill="url(#spirit)" stroke="#111a15" stroke-width="3"/>
+<!-- cuernos y melena -->
+<path d="M31 24Q15 2 8 13Q10 31 27 37M60 24Q74 1 84 14Q83 31 67 39" fill="none" stroke="url(#horn)" stroke-width="7" stroke-linecap="round"/>
+<path d="M19 36L6 48 22 49 10 65 28 59M72 34L87 47 70 51 84 66 66 61" fill="none" stroke="#303e32" stroke-width="7" stroke-linejoin="round"/>
+<!-- rostro -->
+<path d="M20 40Q31 26 45 36Q59 25 73 42L68 65Q46 80 24 64Z" fill="#1c2821" stroke="#101812" stroke-width="2"/>
+<path d="M25 42L39 45 34 55 24 53ZM53 45L68 41 67 54 57 56Z" fill="#d7c88c"/>
+<ellipse cx="32" cy="49" rx="4" ry="5" fill="#f5d36e"/><ellipse cx="61" cy="49" rx="4" ry="5" fill="#f5d36e"/>
+<circle cx="33" cy="49" r="1.7" fill="#241a12"/><circle cx="60" cy="49" r="1.7" fill="#241a12"/>
+<path d="M37 65Q46 58 55 65L51 79 42 79Z" fill="#161c17"/>
+<path d="M42 69L46 73 50 69" fill="none" stroke="#b7bca4" stroke-width="2"/>
+<!-- brazos y garras -->
+<path d="M22 68L8 91M68 67L83 91" stroke="#a7b39a" stroke-width="7" stroke-linecap="round"/>
+<path d="M8 91L3 104M8 91L12 105M83 91L78 105M83 91L89 103" stroke="#d0c9a7" stroke-width="3" stroke-linecap="round"/>
+<!-- manchas / textura de piel -->
+<g fill="#d0d4b6" opacity=".32"><circle cx="24" cy="74" r="2"/><circle cx="31" cy="84" r="1.6"/><circle cx="62" cy="78" r="2"/><circle cx="69" cy="88" r="1.5"/><circle cx="45" cy="29" r="2"/></g>
 </svg>
