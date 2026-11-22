@@ -109,4 +109,59 @@ class Forest extends Phaser.Scene{
 }
 const config={type:Phaser.AUTO,parent:'game',width:960,height:540,backgroundColor:'#080b09',pixelArt:true,physics:{default:'arcade',arcade:{gravity:{y:900},debug:false}},scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[Intro,Forest]};
 window.cazadorGame=new Phaser.Game(config);
-</script></body></html>
+</script>
+<style>
+#pauseBtn{position:fixed;top:max(10px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));z-index:45;width:44px;height:44px;border:2px solid #d7bd82;border-radius:12px;background:#26382cef;color:#fff1c8;font-size:21px;font-weight:900}
+.gamePanel{position:fixed;inset:0;z-index:80;background:#080d0beF;display:none;align-items:center;justify-content:center;padding:20px}
+.gamePanel>section{width:min(440px,100%);max-height:90%;overflow:auto;background:#1d2b20;border:2px solid #d7bd82;border-radius:18px;padding:22px;color:#f4e8c8;box-shadow:0 12px 40px #0009}
+.gamePanel h2{font:800 25px Georgia;margin:0 0 16px}.gamePanel button,.gamePanel select,.gamePanel input{font:700 16px system-ui}
+.gamePanel button{width:100%;min-height:48px;margin:6px 0;border:2px solid #d7bd82;border-radius:11px;background:#526343;color:white}
+.gamePanel label{display:block;margin:14px 0 5px}.gamePanel input{width:100%;accent-color:#c9a66b}
+#rewardList{padding:10px;background:#101812;border-radius:10px;line-height:1.8}
+@media(orientation:portrait){#pauseBtn{display:none}}
+</style>
+<button id="pauseBtn" type="button" aria-label="Pausa">Ⅱ</button>
+<div id="pausePanel" class="gamePanel"><section><h2>PAUSA</h2>
+<label for="volumeSetting">Volumen</label><input id="volumeSetting" type="range" min="0" max="1" step=".05" value="1">
+<label for="sensitivitySetting">Sensibilidad de movimiento</label><input id="sensitivitySetting" type="range" min=".5" max="1.8" step=".1" value="1">
+<button id="resumeGame">▶ CONTINUAR</button><button id="resetGame">↻ REINICIAR NIVEL</button><button id="mainMenu">⌂ VOLVER AL MENÚ PRINCIPAL</button></section></div>
+<div id="rewardPanel" class="gamePanel"><section><h2>RECOMPENSA DEL MONTE</h2><p id="rewardMessage"></p><div id="rewardList"></div><p id="scoreMessage"></p><button id="nextLevel">CONTINUAR</button><button id="rewardMenu">VOLVER AL MENÚ PRINCIPAL</button></section></div>
+<script>
+(()=>{
+ const pause=document.getElementById('pausePanel'),reward=document.getElementById('rewardPanel'),pauseBtn=document.getElementById('pauseBtn');
+ let paused=false,completed=false,sensitivity=1,score=0;
+ const getCollection=()=>{try{return JSON.parse(localStorage.getItem('cazador-relics')||'[]')}catch(e){return []}};
+ const saveCollection=a=>{try{localStorage.setItem('cazador-relics',JSON.stringify(a))}catch(e){}};
+ const getBest=()=>{try{return Number(localStorage.getItem('cazador-best')||0)}catch(e){return 0}};
+ function showMenu(){document.getElementById('hud').style.display='none';document.getElementById('controls').style.display='none';document.getElementById('hint').style.display='none';pauseBtn.style.display='none';pause.style.display='none';reward.style.display='none';const intro=document.getElementById('intro-screen');if(intro)intro.style.display='flex';else{document.getElementById('hint').style.display='block';document.getElementById('hint').innerHTML='MENÚ PRINCIPAL<br><button id="startAgain" style="margin-top:10px;padding:12px">JUGAR</button>';document.getElementById('hint').style.display='block';document.getElementById('startAgain').onclick=()=>location.reload();}}
+ function pauseGame(){if(completed||!window.cazadorGame)return;paused=true;window.cazadorGame.scene.pause('forest');pause.style.display='flex';}
+ function resume(){paused=false;pause.style.display='none';window.cazadorGame?.scene.resume('forest');}
+ pauseBtn.addEventListener('click',pauseGame);document.getElementById('resumeGame').onclick=resume;
+ document.getElementById('volumeSetting').addEventListener('input',e=>{if(window.cazadorGame)window.cazadorGame.sound.volume=Number(e.target.value)});
+ document.getElementById('sensitivitySetting').addEventListener('input',e=>sensitivity=Number(e.target.value));
+ document.getElementById('resetGame').onclick=()=>{pause.style.display='none';paused=false;completed=false;window.cazadorGame.scene.stop('forest');window.cazadorGame.scene.start('forest')};
+ document.getElementById('mainMenu').onclick=showMenu;
+ document.getElementById('rewardMenu').onclick=showMenu;
+ document.getElementById('nextLevel').onclick=()=>{reward.style.display='none';completed=false;window.cazadorGame.scene.stop('forest');window.cazadorGame.scene.start('forest')};
+ window.cazadorCollection=getCollection;
+ window.cazadorAddScore=n=>{score+=n};
+ window.cazadorCompleteLevel=()=>{
+  if(completed)return;completed=true;window.cazadorGame.scene.pause('forest');pauseBtn.style.display='none';
+  const relics=getCollection();const rewardName=relics.includes('Piel del Ao Ao')?'Sangre del Yvyrá':'Piel del Ao Ao';
+  if(!relics.includes(rewardName)){relics.push(rewardName);saveCollection(relics)}
+  score+=1000+Math.max(0,window.cazadorGame.scene.getScene('forest').hp)*250;
+  const best=Math.max(getBest(),score);try{localStorage.setItem('cazador-best',String(best))}catch(e){}
+  document.getElementById('rewardMessage').textContent='Has superado el Bosque del Yvyrá y obtenido: '+rewardName+'.';
+  document.getElementById('rewardList').innerHTML='<b>Reliquias reunidas</b><br>'+relics.map(x=>'✦ '+x).join('<br>');
+  document.getElementById('scoreMessage').textContent='Puntuación: '+score+' · Récord: '+best;
+  reward.style.display='flex';
+ };
+ const original=window.cazadorGame;
+ const waitForScene=()=>{const scene=window.cazadorGame?.scene?.getScene('forest');if(scene&&!scene.__pausePatch){scene.__pausePatch=true;const old=scene.update;scene.update=function(t,dt){old.call(this,t,dt);if(this.player&&this.player.x>=this.levelLength-120&&this.boss&&!this.boss.active)window.cazadorCompleteLevel()};}else if(!scene)setTimeout(waitForScene,250)};
+ waitForScene();
+ const oldCreate=window.cazadorGame.scene.start.bind(window.cazadorGame.scene);
+ window.addEventListener('keydown',e=>{if(e.key==='Escape'||e.key==='p'){e.preventDefault();paused?resume():pauseGame()}});
+ window.cazadorSensitivity=()=>sensitivity;
+})();
+</script>
+</body></html>
