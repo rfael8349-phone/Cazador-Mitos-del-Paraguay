@@ -42,3 +42,13 @@ Implementación inicial añadida en `index.html`:
 - El perro ya detecta amenazas cercanas, cambia a alerta/guardia y puede intervenir contra enemigos próximos.
 
 **Estado:** cambios guardados en `feature/dog-companion-ai-v0.3`. Se ha comprobado el análisis sintáctico del JavaScript embebido; todavía falta una prueba de juego real en navegador y móvil. No integrar en `main` hasta validar controles, colisiones y equilibrio.
+
+## Corrección de renderizado y arte móvil — 22/11/2026
+
+- El fondo del bosque se dibuja ahora en segmentos de 1920 px, en lugar de una única superficie de 38.000 px que podía superar los límites gráficos de algunos móviles.
+- Se han rediseñado los SVG del arriero, el perro y el Ao Ao con más volumen, sombreado y detalles.
+- Se añadió movimiento sutil de respiración al protagonista y movimiento corporal al perro.
+- Se comprobó la sintaxis del JavaScript principal y de la secuencia introductoria.
+- GitHub Pages ha completado la compilación; el despliegue se está terminando.
+
+**Limitación actual:** son ilustraciones vectoriales y movimiento procedural; todavía no son animaciones rotoscopiadas cuadro a cuadro ni sprites de producción. Hace falta probar la escena en un móvil real para confirmar rendimiento, colisiones y controles.
