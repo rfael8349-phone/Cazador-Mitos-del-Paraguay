@@ -3,6 +3,7 @@
 class Intro extends Phaser.Scene {
   constructor(){ super('intro'); this.page=0; this.lock=false; }
   create(){
+    document.getElementById('hud').style.display='none';document.getElementById('controls').style.display='none';document.getElementById('hint').style.display='none';
     this.cameras.main.setBackgroundColor('#080b09');
     this.art=this.add.container(0,0);
     this.caption=this.add.text(480,468,'',{fontFamily:'Georgia,serif',fontSize:'21px',color:'#f0dfbd',align:'center',wordWrap:{width:820},stroke:'#090b08',strokeThickness:4}).setOrigin(.5);
