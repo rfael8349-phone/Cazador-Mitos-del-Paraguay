@@ -128,12 +128,13 @@ window.cazadorGame=new Phaser.Game(config);
 <div id="rewardPanel" class="gamePanel"><section><h2>RECOMPENSA DEL MONTE</h2><p id="rewardMessage"></p><div id="rewardList"></div><p id="scoreMessage"></p><button id="nextLevel">CONTINUAR</button><button id="rewardMenu">VOLVER AL MENÚ PRINCIPAL</button></section></div>
 <script>
 (()=>{
+ document.getElementById('pauseBtn').style.display='none';
  const pause=document.getElementById('pausePanel'),reward=document.getElementById('rewardPanel'),pauseBtn=document.getElementById('pauseBtn');
  let paused=false,completed=false,sensitivity=1,score=0;
  const getCollection=()=>{try{return JSON.parse(localStorage.getItem('cazador-relics')||'[]')}catch(e){return []}};
  const saveCollection=a=>{try{localStorage.setItem('cazador-relics',JSON.stringify(a))}catch(e){}};
  const getBest=()=>{try{return Number(localStorage.getItem('cazador-best')||0)}catch(e){return 0}};
- function showMenu(){document.getElementById('hud').style.display='none';document.getElementById('controls').style.display='none';document.getElementById('hint').style.display='none';pauseBtn.style.display='none';pause.style.display='none';reward.style.display='none';const intro=document.getElementById('intro-screen');if(intro)intro.style.display='flex';else{document.getElementById('hint').style.display='block';document.getElementById('hint').innerHTML='MENÚ PRINCIPAL<br><button id="startAgain" style="margin-top:10px;padding:12px">JUGAR</button>';document.getElementById('hint').style.display='block';document.getElementById('startAgain').onclick=()=>location.reload();}}
+ function showMenu(){document.getElementById('hud').style.display='none';document.getElementById('controls').style.display='none';document.getElementById('hint').style.display='none';pauseBtn.style.display='none';pause.style.display='none';reward.style.display='none';window.cazadorGame.scene.stop('forest');window.cazadorGame.scene.start('intro');}
  function pauseGame(){if(completed||!window.cazadorGame)return;paused=true;window.cazadorGame.scene.pause('forest');pause.style.display='flex';}
  function resume(){paused=false;pause.style.display='none';window.cazadorGame?.scene.resume('forest');}
  pauseBtn.addEventListener('click',pauseGame);document.getElementById('resumeGame').onclick=resume;
@@ -157,7 +158,7 @@ window.cazadorGame=new Phaser.Game(config);
   reward.style.display='flex';
  };
  const original=window.cazadorGame;
- const waitForScene=()=>{const scene=window.cazadorGame?.scene?.getScene('forest');if(scene&&!scene.__pausePatch){scene.__pausePatch=true;const old=scene.update;scene.update=function(t,dt){old.call(this,t,dt);if(this.player&&this.player.x>=this.levelLength-120&&this.boss&&!this.boss.active)window.cazadorCompleteLevel()};}else if(!scene)setTimeout(waitForScene,250)};
+ const waitForScene=()=>{const scene=window.cazadorGame?.scene?.getScene('forest');if(scene&&!scene.__pausePatch){scene.__pausePatch=true;const old=scene.update;scene.update=function(t,dt){old.call(this,t,dt);if(this.player&&this.player.body&&this.player.body.velocity.x!==0)this.player.setVelocityX(this.player.body.velocity.x*sensitivity);if(this.player&&this.player.x>=this.levelLength-120&&this.boss&&!this.boss.active)window.cazadorCompleteLevel()};pauseBtn.style.display='block';}else if(!scene)setTimeout(waitForScene,250)};
  waitForScene();
  const oldCreate=window.cazadorGame.scene.start.bind(window.cazadorGame.scene);
  window.addEventListener('keydown',e=>{if(e.key==='Escape'||e.key==='p'){e.preventDefault();paused?resume():pauseGame()}});
