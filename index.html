@@ -12,20 +12,20 @@
 .pad{display:flex;gap:12px;pointer-events:auto}.ctrl{width:62px;height:62px;border:2px solid #d7bd82;border-radius:16px;background:#26382cdd;color:#fff1c8;font-size:25px;font-weight:900;box-shadow:0 4px #101010;touch-action:none;user-select:none}
 .ctrl:active{transform:translateY(3px);box-shadow:0 1px #101010;background:#526343}
 
-#controls{inset:auto 0 max(14px,env(safe-area-inset-bottom));align-items:flex-end;padding:0 max(24px,env(safe-area-inset-right)) 0 max(24px,env(safe-area-inset-left))}
-.pad{align-items:flex-end;gap:16px}.pad.actions{gap:16px}
-.ctrl{width:clamp(64px,10vh,82px);height:clamp(64px,10vh,82px);min-width:64px;min-height:64px;border-radius:50%;background:#26382cef;border:2px solid #e2ca91;box-shadow:0 5px 0 #11180f;font-size:clamp(25px,4.5vh,34px);-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none;touch-action:none;flex:0 0 auto}
-.pad.actions .ctrl:first-child{transform:translateY(-16px)}
+#controls{position:fixed;left:0;right:0;bottom:max(10px,env(safe-area-inset-bottom));width:100%;display:flex;align-items:flex-end;justify-content:space-between;padding:0 max(12px,env(safe-area-inset-right)) 0 max(12px,env(safe-area-inset-left));gap:8px;z-index:30}
+.pad{align-items:flex-end;gap:clamp(6px,1.6vw,14px);min-width:0}.pad.actions{gap:clamp(6px,1.6vw,14px)}
+.ctrl{width:clamp(48px,9vh,70px);height:clamp(48px,9vh,70px);min-width:48px;min-height:48px;border-radius:50%;background:#26382cef;border:2px solid #e2ca91;box-shadow:0 5px 0 #11180f;font-size:clamp(25px,4.5vh,34px);-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none;touch-action:none;flex:0 0 auto}
+.pad.actions .ctrl:first-child{transform:none}
 .ctrl:focus{outline:none}.ctrl.is-pressed{transform:translateY(3px);box-shadow:0 1px 0 #11180f;background:#526343}
 #rotate{display:none;position:fixed;inset:0;z-index:20;background:#101812;color:#f4e8c8;align-items:center;justify-content:center;text-align:center;padding:28px;font-weight:800}
 @media(orientation:portrait){#rotate{display:flex}#game,#hud,#hint,#controls{visibility:hidden}}
-@media(orientation:landscape) and (max-height:500px){#hud{inset:6px 12px auto;font-size:12px}#hint{top:8%;font-size:11px;padding:6px 9px}#controls{bottom:8px}.ctrl{width:54px;height:54px}}
+@media(orientation:landscape) and (max-height:500px){#hud{inset:6px 12px auto;font-size:12px}#hint{top:8%;font-size:11px;padding:6px 9px}#controls{bottom:max(6px,env(safe-area-inset-bottom));padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right))}.ctrl{width:clamp(46px,10vh,56px);height:clamp(46px,10vh,56px);min-width:46px;min-height:46px}}
 @media(min-width:800px){#controls{opacity:.85}.ctrl{width:58px;height:58px}}
 </style>
 </head>
 <body><div id="game"></div><div id="hud"><span>CAZADOR · MITOS DEL PARAGUAY</span><span id="life">♥ ♥ ♥</span></div><div id="hint">Bosque del Yvyrá · Nivel 1<br>Encuentra y ahuyenta al espíritu del monte</div>
 <div id="controls"><div class="pad"><button type="button" class="ctrl" data-key="left">◀</button><button class="ctrl" data-key="right">▶</button></div><div class="pad actions"><button class="ctrl" data-key="jump" aria-label="Saltar">⬆</button><button class="ctrl" data-key="attack" aria-label="Disparar">✦</button></div></div>
-<div id="rotate">↻<br>Gira el teléfono en horizontal para jugar<br><small>El juego está diseñado en formato apaisado</small></div><script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+<div id="rotate">↻<br>Gira el teléfono en horizontal para jugar<br><small>El juego está diseñado en formato apaisado</small></div><div id="gameover" style="display:none;position:fixed;inset:0;z-index:50;background:#080d0bdc;align-items:center;justify-content:center;text-align:center;padding:24px"><div style="background:#1d2b20;border:2px solid #d7bd82;border-radius:18px;padding:24px;max-width:320px;width:100%;box-shadow:0 12px 40px #0009"><div style="font:800 24px Georgia;color:#f4e8c8;margin-bottom:10px">Has caído en el monte</div><div style="color:#d9c69d;margin-bottom:18px">El camino aún no ha terminado.</div><button id="restart" type="button" style="min-height:54px;width:100%;border:2px solid #e2ca91;border-radius:12px;background:#526343;color:white;font-size:18px;font-weight:800">↻ VOLVER A JUGAR</button></div></div><script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
 <script src="./intro.js"></script>
 <script>
 const keys={left:false,right:false,jump:false,attack:false};
@@ -37,11 +37,13 @@ document.addEventListener('touchmove',e=>{if(e.scale&&e.scale!==1)e.preventDefau
 document.addEventListener('selectstart',e=>e.preventDefault());
 document.querySelectorAll('.ctrl').forEach(b=>{const k=b.dataset.key;let activePointer=null;const on=e=>{e.preventDefault();if(activePointer!==null)return;activePointer=e.pointerId;try{b.setPointerCapture(e.pointerId)}catch(_){}keys[k]=true;b.classList.add('is-pressed');try{if(document.documentElement.requestFullscreen&&!document.fullscreenElement)document.documentElement.requestFullscreen().then(()=>screen.orientation?.lock?.('landscape')).catch(()=>{});else screen.orientation?.lock?.('landscape')?.catch?.(()=>{});}catch(_){}};const off=e=>{if(activePointer!==null&&e.pointerId!==activePointer)return;e.preventDefault();keys[k]=false;b.classList.remove('is-pressed');activePointer=null};b.addEventListener('pointerdown',on);['pointerup','pointercancel','lostpointercapture'].forEach(n=>b.addEventListener(n,off));});
 window.addEventListener('blur',()=>{Object.keys(keys).forEach(k=>keys[k]=false);document.querySelectorAll('.ctrl').forEach(b=>b.classList.remove('is-pressed'))});
+document.getElementById('restart').addEventListener('click',()=>{document.getElementById('gameover').style.display='none';const game=window.cazadorGame;if(game){game.scene.stop('forest');game.scene.start('forest');}});
 window.addEventListener('gamepadconnected',()=>{const h=document.getElementById('hint');if(h)h.innerHTML='Mando conectado: cruceta o stick para moverte · A/sur para saltar · X/oeste o B/este para disparar';});
 function readGamepad(){const pads=navigator.getGamepads?navigator.getGamepads():[];const p=Array.from(pads).find(x=>x&&x.connected);if(!p)return {left:false,right:false,jump:false,attack:false};const ax=p.axes?.[0]||0,b=p.buttons||[];return {left:ax<-.35||!!b[14]?.pressed,right:ax>.35||!!b[15]?.pressed,jump:!!b[0]?.pressed||!!b[12]?.pressed,attack:!!b[2]?.pressed||!!b[1]?.pressed||!!b[3]?.pressed};}
 class Forest extends Phaser.Scene{
  constructor(){super('forest');this.hp=3;this.hitWait=0;this.shotWait=0;this.elapsed=0;this.levelLength=38000;this.bossSpawned=false;this.projectiles=[];this.enemies=[];this.loot=[]}
  create(){
+  this.gameOver=false;const overlay=document.getElementById('gameover');if(overlay)overlay.style.display='none';
   document.getElementById('hud').style.display='flex';document.getElementById('controls').style.display='flex';document.getElementById('hint').style.display='block';
   this.physics.world.setBounds(0,0,this.levelLength,540);
   const bg=this.add.graphics();bg.fillGradientStyle(0x101b16,0x101b16,0x33402a,0x33402a,1);bg.fillRect(0,0,this.levelLength,540);
@@ -74,7 +76,7 @@ class Forest extends Phaser.Scene{
  makeHunter(){let g=this.add.graphics();g.fillStyle(0x30251d,1);g.fillRect(12,37,13,23);g.fillRect(28,37,13,23);g.fillStyle(0x4b3426,1);g.fillRect(8,57,20,6);g.fillRect(27,57,20,6);g.fillStyle(0xd9c69b,1);g.fillRect(10,12,33,34);g.fillStyle(0x9e2930,1);g.fillRect(11,12,31,7);g.fillStyle(0x8a6039,1);g.fillRect(10,0,34,8);g.fillRect(4,7,47,5);g.fillStyle(0xd6aa76,1);g.fillRect(20,20,15,14);g.fillStyle(0x30251d,1);g.fillRect(31,25,3,3);g.generateTexture('hunter',56,66);g.destroy();let gh=this.add.graphics();gh.fillStyle(0xc4d4bc,.9);gh.fillEllipse(26,28,42,52);gh.fillStyle(0x1b2923,1);gh.fillCircle(19,24,4);gh.fillCircle(32,24,4);gh.fillStyle(0x9e2930,1);gh.fillEllipse(26,42,15,5);gh.generateTexture('ghost',54,65);gh.destroy();let b=this.make.graphics({x:0,y:0,add:false});b.fillStyle(0xffd36b,1);b.fillRect(0,0,12,5);b.generateTexture('bullet',12,5);b.destroy();let boss=this.make.graphics({x:0,y:0,add:false});boss.fillStyle(0x24251d,1);boss.fillEllipse(55,55,100,100);boss.fillStyle(0xe7c66b,1);boss.fillCircle(38,45,7);boss.fillCircle(70,45,7);boss.fillStyle(0x8b2525,1);boss.fillEllipse(55,76,38,12);boss.generateTexture('boss',110,110);boss.destroy()}
  makeGhost(){}
  updateHud(){document.getElementById('life').textContent='♥ '.repeat(this.hp)+'  ·  ✦ '+this.ammo;if(this.ammoText)this.ammoText.setText('✦ '+this.ammo)}
- touchEnemy(e){if(!e.active||this.player.y>e.y+65)return;if(this.hitWait<=0){this.hp=Math.max(0,this.hp-1);this.hitWait=900;this.updateHud();if(!this.hp){document.getElementById('hint').innerHTML='Has caído en el monte. Toca para reiniciar.';this.physics.pause();this.input.once('pointerdown',()=>this.scene.restart())}}}
+ touchEnemy(e){if(!e.active||this.player.y>e.y+65)return;if(this.hitWait<=0){this.hp=Math.max(0,this.hp-1);this.hitWait=900;this.updateHud();if(!this.hp){this.physics.pause();this.gameOver=true;document.getElementById('controls').style.display='none';document.getElementById('hint').style.display='none';document.getElementById('gameover').style.display='flex';}}}
  shoot(){if(this.shotWait>0||this.ammo<=0)return;this.shotWait=260;this.ammo--;let dir=this.player.flipX?-1:1;let b=this.physics.add.image(this.player.x+dir*30,this.player.y+3,'bullet');b.setVelocityX(dir*540);b.body.setAllowGravity(false);this.physics.add.overlap(b,this.enemies,(shot,e)=>{if(!e.active)return;e.setData('hp',e.getData('hp')-1);shot.destroy();if(e.getData('hp')<=0){let x=e.x,y=e.y;e.destroy();if(Math.random()<.42){let drop=this.physics.add.staticImage(x,y,'bullet').setTint(0xe8c65a);drop.setScale(1.5).refreshBody();this.physics.add.overlap(this.player,drop,()=>{if(drop.active){this.ammo+=6;drop.destroy();this.updateHud()}})}}});if(this.boss&&this.boss.active)this.physics.add.overlap(b,this.boss,()=>{if(b.active&&this.boss.active){b.destroy();this.bossHp--;if(this.bossHp<=0){this.boss.destroy();document.getElementById('hint').innerHTML='¡Jefe derrotado! Has completado la primera fase.'}}});this.time.delayedCall(1800,()=>{if(b.active)b.destroy()});this.projectiles.push(b);this.updateHud()}
  spawnBoss(){this.bossSpawned=true;this.bossHp=12;this.boss=this.physics.add.sprite(this.levelLength-650,365,'boss').setImmovable(true);this.boss.body.setAllowGravity(false);this.physics.add.overlap(this.player,this.boss,()=>this.touchEnemy(this.boss));document.getElementById('hint').innerHTML='¡EL AO AO MAYOR! Dispara para derrotarlo.'}
  update(t,dt){
@@ -91,5 +93,5 @@ class Forest extends Phaser.Scene{
  }
 }
 const config={type:Phaser.AUTO,parent:'game',width:960,height:540,backgroundColor:'#080b09',pixelArt:true,physics:{default:'arcade',arcade:{gravity:{y:900},debug:false}},scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[Intro,Forest]};
-new Phaser.Game(config);
+window.cazadorGame=new Phaser.Game(config);
 </script></body></html>
