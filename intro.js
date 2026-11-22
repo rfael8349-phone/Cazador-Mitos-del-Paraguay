@@ -70,7 +70,39 @@ class Intro extends Phaser.Scene {
     if(kind==='vow'){this.rect(0,0,960,540,0x171713);this.ellipse(480,260,150,170,0x090b09);this.ellipse(480,220,35,40,0xb98a60);this.rect(430,260,100,155,0x762827);this.text('NUNCA MÁS',390,115,28,'#d7b98c');}
     if(kind==='wake'){this.rect(0,0,960,540,0x0c100d);this.ellipse(480,280,210,130,0x252b24);this.ellipse(480,250,50,55,0xb98a60);this.text('EL RECUERDO LO DESPERTÓ',250,125,20,'#e1d1ae');}
     if(n===0)this.text('PARAGUAY · 04:00 AM',345,70,18,'#c7b58d');
+    this.addCinematicFinish(kind,n);
     this.sub.setText(n===this.pages.length-1?'TOCA PARA COMENZAR EL NIVEL 1':'TOCA PARA CONTINUAR');
+  }
+  addCinematicFinish(kind,n){
+    // Acabado cinematográfico: viñeta, bandas de cine, niebla y partículas ambientales.
+    const shade=this.add.graphics();shade.fillGradientStyle(0x050806,.72,0x050806,0,.72);shade.fillRect(0,0,960,540);shade.fillGradientStyle(0x050806,0,0x050806,.78,0,.78);shade.fillRect(0,0,960,540);this.art.add(shade);
+    const bars=this.add.graphics();bars.fillStyle(0x050604,.94);bars.fillRect(0,0,960,34);bars.fillRect(0,506,960,34);this.art.add(bars);
+    // Niebla en planos separados para dar profundidad al monte.
+    for(let i=0;i<7;i++){
+      const mist=this.add.ellipse((i*173+80)%1080,365+(i%3)*38,190+(i%2)*70,22+(i%3)*9,0xb7c2a0,.055+(i%3)*.018);
+      this.art.add(mist);
+      this.tweens.add({targets:mist,x:mist.x+(i%2?95:-95),alpha:mist.alpha*.55,duration:6500+i*430,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
+    }
+    // Motas de ceniza/luciérnagas con movimiento lento.
+    for(let i=0;i<34;i++){
+      const x=(i*137+41)%960,y=90+(i*83)%390;
+      const mote=this.add.circle(x,y,1+(i%3)*.55,i%4===0?0xe8c879:0xd7ddbd,.28+(i%3)*.1);
+      this.art.add(mote);
+      this.tweens.add({targets:mote,y:y-28-(i%5)*9,alpha:0,duration:2600+i*115,delay:i*37,repeat:-1,ease:'Sine.easeInOut'});
+    }
+    if(kind==='dawn'||kind==='wake'){
+      const glow=this.add.circle(770,135,115,0xffd78b,.10);this.art.add(glow);
+      this.tweens.add({targets:glow,scale:1.22,alpha:.035,duration:2600,yoyo:true,repeat:-1});
+    }
+    if(kind==='howl'||kind==='attack'||kind==='pindo'){
+      const fog=this.add.rectangle(480,420,960,110,0x9ca58b,.10);this.art.add(fog);
+    }
+    // Microtemblor de cámara en la escena del ataque.
+    if(kind==='attack')this.cameras.main.shake(520,.0025);
+    // Textura de película muy discreta, sin ocultar ilustración ni subtítulos.
+    const grain=this.add.graphics();let seed=917+n*31;const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+    for(let i=0;i<115;i++){grain.fillStyle(0xe9dfc6,.035+rnd()*.045);grain.fillRect(rnd()*960,rnd()*540,1,1);}
+    this.art.add(grain);
   }
   next(){
     if(this.lock)return;this.lock=true;this.cameras.main.fadeOut(350,0,0,0);
