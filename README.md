@@ -22,3 +22,11 @@ En GitHub: **Settings → Pages → Deploy from a branch → main → / (root) �
 4. Preparar la instalación como aplicación móvil con Capacitor.
 
 Esta es una primera base de juego, no la versión final de los 30 niveles.
+
+## Nivel 1 — generador procedural (primera fase)
+- Recorrido de aproximadamente 200 segundos a velocidad continua de referencia.
+- Suelo continuo y cámara lateral que sigue al protagonista.
+- Tramos con distribución pseudoaleatoria de Ao Ao, plataformas y munición.
+- Disparo con J o botón ✦; salto con Espacio o botón ⬆.
+- Enemigos con resistencia, drops de munición y jefe final Ao Ao Mayor.
+- El tiempo y la distancia activan el encuentro final; el ritmo real depende de cuánto avance el jugador.
