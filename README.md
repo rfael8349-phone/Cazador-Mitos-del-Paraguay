@@ -30,3 +30,15 @@ Esta es una primera base de juego, no la versión final de los 30 niveles.
 - Disparo con J o botón ✦; salto con Espacio o botón ⬆.
 - Enemigos con resistencia, drops de munición y jefe final Ao Ao Mayor.
 - El tiempo y la distancia activan el encuentro final; el ritmo real depende de cuánto avance el jugador.
+
+
+## v0.3 — combate y compañero (rama de desarrollo)
+
+Implementación inicial añadida en `index.html`:
+- Ciclo de armas: escopeta, machete, arreador y puños; el selector evita equipar el arma de fuego si no queda munición.
+- En las emboscadas el arriero prepara automáticamente el arma disponible, pero el jugador conserva la decisión de atacar.
+- El machete tiene una secuencia de preparación, barrido curvo y recuperación; el arreador y los puños conservan alcances y tiempos distintos.
+- Tres altares de bendición opcionales mejoran progresivamente el daño del machete.
+- El perro ya detecta amenazas cercanas, cambia a alerta/guardia y puede intervenir contra enemigos próximos.
+
+**Estado:** cambios guardados en `feature/dog-companion-ai-v0.3`. Se ha comprobado el análisis sintáctico del JavaScript embebido; todavía falta una prueba de juego real en navegador y móvil. No integrar en `main` hasta validar controles, colisiones y equilibrio.
