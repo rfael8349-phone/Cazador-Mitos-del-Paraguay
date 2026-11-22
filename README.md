@@ -52,3 +52,12 @@ Implementación inicial añadida en `index.html`:
 - GitHub Pages ha completado la compilación; el despliegue se está terminando.
 
 **Limitación actual:** son ilustraciones vectoriales y movimiento procedural; todavía no son animaciones rotoscopiadas cuadro a cuadro ni sprites de producción. Hace falta probar la escena en un móvil real para confirmar rendimiento, colisiones y controles.
+
+
+## Optimización móvil y ambiente visual — 22/11/2026
+
+- El suelo físico se divide en tramos de 1.024 px en lugar de cientos de cuerpos pequeños.
+- Los encuentros, plataformas y suministros se generan progresivamente cerca del jugador; ya no se instancian todos al iniciar el nivel.
+- Se añadieron luciérnagas animadas y una capa ambiental tenue con coste gráfico reducido.
+- Se comprobó la sintaxis JavaScript del juego tras los cambios.
+- Pendiente: prueba de ejecución real en Safari/iPhone y Android; la compilación/publicación de Pages debe terminar antes de validar el enlace actualizado.
