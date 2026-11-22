@@ -12,10 +12,11 @@
 .pad{display:flex;gap:12px;pointer-events:auto}.ctrl{width:62px;height:62px;border:2px solid #d7bd82;border-radius:16px;background:#26382cdd;color:#fff1c8;font-size:25px;font-weight:900;box-shadow:0 4px #101010;touch-action:none;user-select:none}
 .ctrl:active{transform:translateY(3px);box-shadow:0 1px #101010;background:#526343}
 
-#controls{inset:auto 0 10px;align-items:flex-end;padding:0 max(18px,env(safe-area-inset-right)) 0 max(18px,env(safe-area-inset-left))}
-.pad{align-items:flex-end;gap:10px}.pad.actions{gap:12px}
-.ctrl{width:clamp(52px,8.5vh,72px);height:clamp(52px,8.5vh,72px);border-radius:50%;background:#26382cef;border:2px solid #e2ca91;box-shadow:0 4px 0 #11180f;font-size:clamp(22px,4vh,30px)}
-.pad.actions .ctrl:first-child{transform:translateY(-13px)}
+#controls{inset:auto 0 max(14px,env(safe-area-inset-bottom));align-items:flex-end;padding:0 max(24px,env(safe-area-inset-right)) 0 max(24px,env(safe-area-inset-left))}
+.pad{align-items:flex-end;gap:16px}.pad.actions{gap:16px}
+.ctrl{width:clamp(64px,10vh,82px);height:clamp(64px,10vh,82px);min-width:64px;min-height:64px;border-radius:50%;background:#26382cef;border:2px solid #e2ca91;box-shadow:0 5px 0 #11180f;font-size:clamp(25px,4.5vh,34px);-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none;touch-action:none;flex:0 0 auto}
+.pad.actions .ctrl:first-child{transform:translateY(-16px)}
+.ctrl:focus{outline:none}.ctrl.is-pressed{transform:translateY(3px);box-shadow:0 1px 0 #11180f;background:#526343}
 #rotate{display:none;position:fixed;inset:0;z-index:20;background:#101812;color:#f4e8c8;align-items:center;justify-content:center;text-align:center;padding:28px;font-weight:800}
 @media(orientation:portrait){#rotate{display:flex}#game,#hud,#hint,#controls{visibility:hidden}}
 @media(orientation:landscape) and (max-height:500px){#hud{inset:6px 12px auto;font-size:12px}#hint{top:8%;font-size:11px;padding:6px 9px}#controls{bottom:8px}.ctrl{width:54px;height:54px}}
@@ -23,12 +24,15 @@
 </style>
 </head>
 <body><div id="game"></div><div id="hud"><span>CAZADOR · MITOS DEL PARAGUAY</span><span id="life">♥ ♥ ♥</span></div><div id="hint">Bosque del Yvyrá · Nivel 1<br>Encuentra y ahuyenta al espíritu del monte</div>
-<div id="controls"><div class="pad"><button class="ctrl" data-key="left">◀</button><button class="ctrl" data-key="right">▶</button></div><div class="pad actions"><button class="ctrl" data-key="jump" aria-label="Saltar">⬆</button><button class="ctrl" data-key="attack" aria-label="Disparar">✦</button></div></div>
+<div id="controls"><div class="pad"><button type="button" class="ctrl" data-key="left">◀</button><button class="ctrl" data-key="right">▶</button></div><div class="pad actions"><button class="ctrl" data-key="jump" aria-label="Saltar">⬆</button><button class="ctrl" data-key="attack" aria-label="Disparar">✦</button></div></div>
 <div id="rotate">↻<br>Gira el teléfono en horizontal para jugar<br><small>El juego está diseñado en formato apaisado</small></div><script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
 <script src="./intro.js"></script>
 <script>
 const keys={left:false,right:false,jump:false,attack:false};
-document.querySelectorAll('.ctrl').forEach(b=>{const k=b.dataset.key;const on=e=>{e.preventDefault();keys[k]=true;try{if(document.documentElement.requestFullscreen&&!document.fullscreenElement)document.documentElement.requestFullscreen().then(()=>screen.orientation?.lock?.('landscape')).catch(()=>{});else screen.orientation?.lock?.('landscape')?.catch?.(()=>{});}catch(_){}};const off=e=>{e.preventDefault();keys[k]=false};b.addEventListener('pointerdown',on);['pointerup','pointercancel','pointerleave'].forEach(n=>b.addEventListener(n,off));});
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('selectstart',e=>e.preventDefault());
+document.querySelectorAll('.ctrl').forEach(b=>{const k=b.dataset.key;let activePointer=null;const on=e=>{e.preventDefault();if(activePointer!==null)return;activePointer=e.pointerId;try{b.setPointerCapture(e.pointerId)}catch(_){}keys[k]=true;b.classList.add('is-pressed');try{if(document.documentElement.requestFullscreen&&!document.fullscreenElement)document.documentElement.requestFullscreen().then(()=>screen.orientation?.lock?.('landscape')).catch(()=>{});else screen.orientation?.lock?.('landscape')?.catch?.(()=>{});}catch(_){}};const off=e=>{if(activePointer!==null&&e.pointerId!==activePointer)return;e.preventDefault();keys[k]=false;b.classList.remove('is-pressed');activePointer=null};b.addEventListener('pointerdown',on);['pointerup','pointercancel','lostpointercapture'].forEach(n=>b.addEventListener(n,off));});
+window.addEventListener('blur',()=>{Object.keys(keys).forEach(k=>keys[k]=false);document.querySelectorAll('.ctrl').forEach(b=>b.classList.remove('is-pressed'))});
 window.addEventListener('gamepadconnected',()=>{const h=document.getElementById('hint');if(h)h.innerHTML='Mando conectado: cruceta o stick para moverte · A/sur para saltar · X/oeste o B/este para disparar';});
 function readGamepad(){const pads=navigator.getGamepads?navigator.getGamepads():[];const p=Array.from(pads).find(x=>x&&x.connected);if(!p)return {left:false,right:false,jump:false,attack:false};const ax=p.axes?.[0]||0,b=p.buttons||[];return {left:ax<-.35||!!b[14]?.pressed,right:ax>.35||!!b[15]?.pressed,jump:!!b[0]?.pressed||!!b[12]?.pressed,attack:!!b[2]?.pressed||!!b[1]?.pressed||!!b[3]?.pressed};}
 class Forest extends Phaser.Scene{
