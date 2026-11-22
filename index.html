@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#101812"><title>Cazador: Mitos del Paraguay</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101812;color:#f4e8c8;font-family:system-ui,sans-serif;touch-action:none}
+#game{width:100%;height:100%;display:grid;place-items:center}canvas{max-width:100%;max-height:100%;image-rendering:pixelated}
+#hud{position:fixed;inset:12px 14px auto;display:flex;justify-content:space-between;pointer-events:none;text-shadow:2px 2px #101010;font-weight:800;letter-spacing:.04em}
+#hint{position:fixed;left:50%;top:12%;transform:translateX(-50%);background:#101812cc;border:1px solid #b58b50;padding:9px 14px;border-radius:8px;text-align:center;font-size:13px}
+#controls{position:fixed;inset:auto 0 18px;display:flex;justify-content:space-between;padding:0 20px;pointer-events:none}
+.pad{display:flex;gap:12px;pointer-events:auto}.ctrl{width:62px;height:62px;border:2px solid #d7bd82;border-radius:16px;background:#26382cdd;color:#fff1c8;font-size:25px;font-weight:900;box-shadow:0 4px #101010;touch-action:none;user-select:none}
+.ctrl:active{transform:translateY(3px);box-shadow:0 1px #101010;background:#526343}
+@media(min-width:800px){#controls{opacity:.65}.ctrl{width:54px;height:54px}}
+</style>
+</head>
+<body><div id="game"></div><div id="hud"><span>CAZADOR · MITOS DEL PARAGUAY</span><span id="life">♥ ♥ ♥</span></div><div id="hint">Bosque del Yvyrá · Nivel 1<br>Encuentra y ahuyenta al espíritu del monte</div>
+<div id="controls"><div class="pad"><button class="ctrl" data-key="left">◀</button><button class="ctrl" data-key="right">▶</button></div><div class="pad"><button class="ctrl" data-key="jump">⬆</button><button class="ctrl" data-key="attack">✦</button></div></div>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+<script>
+const keys={left:false,right:false,jump:false,attack:false};
+document.querySelectorAll('.ctrl').forEach(b=>{const k=b.dataset.key;const on=e=>{e.preventDefault();keys[k]=true};const off=e=>{e.preventDefault();keys[k]=false};b.addEventListener('pointerdown',on);['pointerup','pointercancel','pointerleave'].forEach(n=>b.addEventListener(n,off));});
+class Forest extends Phaser.Scene{
+ constructor(){super('forest');this.hp=3;this.hitWait=0}
+ create(){
+  const g=this.add.graphics();
+  g.fillGradientStyle(0x17251b,0x17251b,0x34442a,0x34442a,1);g.fillRect(0,0,960,540);
+  // moon and layered forest silhouettes
+  g.fillStyle(0xd8c99a,.8);g.fillCircle(770,95,34);
+  for(let layer=0;layer<3;layer++){g.fillStyle([0x263927,0x1d3024,0x14231c][layer],1);for(let x=-20;x<1020;x+=75){let h=150+((x*7+layer*43)%100);g.fillTriangle(x,410,x+38,410-h,x+76,410);g.fillRect(x+30,390-h*.35,15,h*.5)}}
+  g.fillStyle(0x59452b,1);g.fillRect(0,430,960,110);g.fillStyle(0x819052,1);for(let x=0;x<960;x+=22)g.fillRect(x,428+(x%3)*2,12,3);
+  // distant fireflies
+  for(let i=0;i<28;i++){let x=Phaser.Math.Between(10,950),y=Phaser.Math.Between(100,420);let p=this.add.circle(x,y,2,0xe4d88b,.75);this.tweens.add({targets:p,alpha:.15,duration:Phaser.Math.Between(700,1500),yoyo:true,repeat:-1})}
+  this.physics.world.setBounds(0,0,960,540);
+  this.platform=this.physics.add.staticImage(480,470,'ground').setVisible(false);this.platform.body.setSize(960,90).setOffset(0,0);
+  this.player=this.physics.add.sprite(150,390,'hunter');this.player.setCollideWorldBounds(true).setBounce(0);this.player.body.setSize(28,54).setOffset(10,5);
+  this.dog=this.add.container(112,424);this.drawDog(this.dog);
+  this.enemy=this.physics.add.sprite(720,395,'ghost');this.enemy.setCollideWorldBounds(true);this.enemy.body.setSize(35,55);
+  this.physics.add.collider(this.player,this.platform);this.physics.add.collider(this.enemy,this.platform);
+  this.cameras.main.setBounds(0,0,960,540);this.cameras.main.startFollow(this.player,true,.08,.08);
+  this.cursors=this.input.keyboard.createCursorKeys();this.wasd=this.input.keyboard.addKeys('A,D,W,SPACE,J');
+  this.add.text(28,495,'WASD / FLECHAS · ESPACIO: SALTAR · J: MACHETE',{fontFamily:'monospace',fontSize:'13px',color:'#f4e8c8'}).setScrollFactor(0).setAlpha(.8);
+  this.makeHunter();this.makeGhost();
+ }
+ drawDog(c){let a=this.add.graphics();a.fillStyle(0x9b7045,1);a.fillEllipse(0,0,40,22);a.fillCircle(13,-11,11);a.fillStyle(0x3b2b20,1);a.fillTriangle(7,-18,11,-31,17,-18);a.fillCircle(17,-12,2);a.fillStyle(0xf1dfba,1);a.fillEllipse(18,-7,9,6);c.add(a)}
+ makeHunter(){let g=this.add.graphics();g.fillStyle(0x30251d,1);g.fillRect(12,37,13,23);g.fillRect(28,37,13,23);g.fillStyle(0x4b3426,1);g.fillRect(8,57,20,6);g.fillRect(27,57,20,6);g.fillStyle(0xd9c69b,1);g.fillRect(10,12,33,34);g.fillStyle(0x9e2930,1);g.fillRect(11,12,31,7);g.fillStyle(0x8a6039,1);g.fillRect(10,0,34,8);g.fillRect(4,7,47,5);g.fillStyle(0xd6aa76,1);g.fillRect(20,20,15,14);g.fillStyle(0x30251d,1);g.fillRect(31,25,3,3);g.generateTexture('hunter',56,66);g.destroy();
+ let gh=this.add.graphics();gh.fillStyle(0xc4d4bc,.82);gh.fillEllipse(26,28,42,52);gh.fillStyle(0x1b2923,1);gh.fillCircle(19,24,4);gh.fillCircle(32,24,4);gh.fillStyle(0x9e2930,1);gh.fillEllipse(26,42,15,5);gh.generateTexture('ghost',54,65);gh.destroy()}
+ makeGhost(){}
+ update(t,dt){
+  const p=this.player, left=keys.left||this.cursors.left.isDown||this.wasd.A.isDown,right=keys.right||this.cursors.right.isDown,jump=keys.jump||this.cursors.up.isDown||this.wasd.W.isDown||this.wasd.SPACE.isDown,attack=keys.attack||this.wasd.J.isDown;
+  p.setVelocityX(left?-190:right?190:0);if((jump||this.cursors.space.isDown)&&p.body.blocked.down)p.setVelocityY(-420);
+  if(attack&&this.hitWait<=0){this.hitWait=450;let d=Phaser.Math.Distance.Between(p.x,p.y,this.enemy.x,this.enemy.y);if(d<105){this.enemy.setTint(0xffffff);this.time.delayedCall(180,()=>this.enemy.clearTint());this.enemy.x=850;document.getElementById('hint').innerHTML='¡Buen golpe! El espíritu retrocede…';}}
+  this.hitWait=Math.max(0,this.hitWait-dt);
+  this.enemy.setVelocityX(this.enemy.x>p.x+90?-45:this.enemy.x<p.x+45?45:0);
+  this.dog.setPosition(p.x-36,p.y+30);
+  if(Phaser.Math.Distance.Between(p.x,p.y,this.enemy.x,this.enemy.y)<43&&this.hitWait<=0){this.hp=Math.max(0,this.hp-1);this.hitWait=1000;document.getElementById('life').textContent='♥ '.repeat(this.hp)||'SIN VIDAS';if(!this.hp){document.getElementById('hint').innerHTML='El monte te ha vencido. Recarga para intentarlo otra vez.';p.setVelocity(0,0);p.setTint(0x777777)}}
+  if(this.enemy.x>900){this.enemy.x=900;document.getElementById('hint').innerHTML='¡El camino está despejado! Próximamente: más criaturas del Paraguay.'}
+ }
+}
+const config={type:Phaser.AUTO,parent:'game',width:960,height:540,backgroundColor:'#17251b',pixelArt:true,physics:{default:'arcade',arcade:{gravity:{y:900},debug:false}},scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[Forest]};
+new Phaser.Game(config);
+</script></body></html>
