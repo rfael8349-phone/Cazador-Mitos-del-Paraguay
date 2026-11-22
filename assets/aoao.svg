@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="90" height="112" viewBox="0 0 90 112">
+<defs><linearGradient id="spirit" x2="1"><stop stop-color="#b9c2a5"/><stop offset=".55" stop-color="#586653"/><stop offset="1" stop-color="#202b24"/></linearGradient></defs>
+<path d="M17 105Q8 78 18 50Q8 24 31 15L42 3 52 18Q82 15 79 49Q90 77 74 105L61 94 48 110 36 94Z" fill="url(#spirit)" stroke="#111a15" stroke-width="3"/>
+<path d="M22 42Q34 29 45 40Q57 27 71 43L65 58Q46 69 27 57Z" fill="#172019"/>
+<ellipse cx="34" cy="47" rx="5" ry="7" fill="#e8c978"/><ellipse cx="60" cy="47" rx="5" ry="7" fill="#e8c978"/>
+<path d="M33 73Q46 64 60 73L55 84 39 84Z" fill="#201b17"/>
+<path d="M26 90L11 108M66 91L81 108" stroke="#a8b49a" stroke-width="5" stroke-linecap="round"/>
+</svg>
