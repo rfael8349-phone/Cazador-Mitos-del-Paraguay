@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#101812"><title>Cazador: Mitos del Paraguay</title>
+<meta name="theme-color" content="#080e16"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="mobile-web-app-capable" content="yes"><title>Cazador: Mitos del Paraguay</title>
 <style>
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%;touch-action:pan-x pan-y}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101812;color:#f4e8c8;font-family:system-ui,sans-serif;touch-action:none}
 #game{width:100%;height:100%;display:grid;place-items:center}canvas{max-width:100%;max-height:100%;image-rendering:auto}
@@ -17,15 +17,15 @@
 .ctrl{width:clamp(48px,9vh,70px);height:clamp(48px,9vh,70px);min-width:48px;min-height:48px;border-radius:50%;background:#26382cef;border:2px solid #e2ca91;box-shadow:0 5px 0 #11180f;font-size:clamp(25px,4.5vh,34px);-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none;touch-action:none;flex:0 0 auto}
 .pad.actions .ctrl:first-child{transform:none}
 .ctrl:focus{outline:none}.ctrl.is-pressed{transform:translateY(3px);box-shadow:0 1px 0 #11180f;background:#526343}
-#rotate{display:none;position:fixed;inset:0;z-index:20;background:#101812;color:#f4e8c8;align-items:center;justify-content:center;text-align:center;padding:28px;font-weight:800}
-@media(orientation:portrait){#rotate{display:flex}#game,#hud,#hint,#controls{visibility:hidden}}
+#rotate{display:none!important}#skipIntro{display:none;position:fixed;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));z-index:80;padding:10px 15px;border:1px solid #d7bd82;border-radius:999px;background:#101812dd;color:#f4e8c8;font-weight:800;font-size:13px;letter-spacing:.04em;touch-action:manipulation}#skipIntro:active{transform:scale(.96);background:#526343}
+@media(orientation:portrait){#game{width:100vw;height:100dvh}#hud{font-size:12px}#controls{transform:scale(.88);transform-origin:bottom center}}
 @media(orientation:landscape) and (max-height:500px){#hud{inset:6px 12px auto;font-size:12px}#hint{top:8%;font-size:11px;padding:6px 9px}#controls{bottom:max(6px,env(safe-area-inset-bottom));padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right))}.ctrl{width:clamp(46px,10vh,56px);height:clamp(46px,10vh,56px);min-width:46px;min-height:46px}}
 @media(min-width:800px){#controls{opacity:.85}.ctrl{width:58px;height:58px}}
 </style>
 </head>
 <body><div id="game"></div><div id="hud"><span>CAZADOR · MITOS DEL PARAGUAY</span><span id="life">♥ ♥ ♥</span></div><div id="hint">Bosque del Yvyrá · Nivel 1<br>Encuentra y ahuyenta al espíritu del monte</div>
 <div id="controls"><div class="pad"><button type="button" class="ctrl" data-key="left">◀</button><button class="ctrl" data-key="right">▶</button></div><div class="pad actions"><button class="ctrl" data-key="jump" aria-label="Saltar">⬆</button><button class="ctrl" data-key="attack" aria-label="Atacar">✦</button><button class="ctrl" data-key="weapon" aria-label="Cambiar arma">⚔</button></div></div>
-<div id="rotate">↻<br>Gira el teléfono en horizontal para jugar<br><small>El juego está diseñado en formato apaisado</small></div><div id="gameover" style="display:none;position:fixed;inset:0;z-index:50;background:#080d0bdc;align-items:center;justify-content:center;text-align:center;padding:24px"><div style="background:#1d2b20;border:2px solid #d7bd82;border-radius:18px;padding:24px;max-width:320px;width:100%;box-shadow:0 12px 40px #0009"><div style="font:800 24px Georgia;color:#f4e8c8;margin-bottom:10px">Has caído en el monte</div><div style="color:#d9c69d;margin-bottom:18px">El camino aún no ha terminado.</div><button id="restart" type="button" style="min-height:54px;width:100%;border:2px solid #e2ca91;border-radius:12px;background:#526343;color:white;font-size:18px;font-weight:800">↻ VOLVER A JUGAR</button></div></div><script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+<button id="skipIntro" type="button" aria-label="Saltar introducción">SALTAR INTRODUCCIÓN »</button><div id="gameover" style="display:none;position:fixed;inset:0;z-index:50;background:#080d0bdc;align-items:center;justify-content:center;text-align:center;padding:24px"><div style="background:#1d2b20;border:2px solid #d7bd82;border-radius:18px;padding:24px;max-width:320px;width:100%;box-shadow:0 12px 40px #0009"><div style="font:800 24px Georgia;color:#f4e8c8;margin-bottom:10px">Has caído en el monte</div><div style="color:#d9c69d;margin-bottom:18px">El camino aún no ha terminado.</div><button id="restart" type="button" style="min-height:54px;width:100%;border:2px solid #e2ca91;border-radius:12px;background:#526343;color:white;font-size:18px;font-weight:800">↻ VOLVER A JUGAR</button></div></div><script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
 <script src="./intro.js"></script>
 <script>
 const keys={left:false,right:false,jump:false,attack:false,weapon:false};
@@ -35,7 +35,7 @@ document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
 document.addEventListener('touchmove',e=>{if(e.scale&&e.scale!==1)e.preventDefault()},{passive:false});
 document.addEventListener('selectstart',e=>e.preventDefault());
-document.querySelectorAll('.ctrl').forEach(b=>{const k=b.dataset.key;let activePointer=null;const on=e=>{e.preventDefault();if(activePointer!==null)return;activePointer=e.pointerId;try{b.setPointerCapture(e.pointerId)}catch(_){}keys[k]=true;b.classList.add('is-pressed');try{if(document.documentElement.requestFullscreen&&!document.fullscreenElement)document.documentElement.requestFullscreen().then(()=>screen.orientation?.lock?.('landscape')).catch(()=>{});else screen.orientation?.lock?.('landscape')?.catch?.(()=>{});}catch(_){}};const off=e=>{if(activePointer!==null&&e.pointerId!==activePointer)return;e.preventDefault();keys[k]=false;b.classList.remove('is-pressed');activePointer=null};b.addEventListener('pointerdown',on);['pointerup','pointercancel','lostpointercapture'].forEach(n=>b.addEventListener(n,off));});
+document.querySelectorAll('.ctrl').forEach(b=>{const k=b.dataset.key;let activePointer=null;const on=e=>{e.preventDefault();if(activePointer!==null)return;activePointer=e.pointerId;try{b.setPointerCapture(e.pointerId)}catch(_){}keys[k]=true;b.classList.add('is-pressed');try{if(screen.orientation?.lock)screen.orientation.lock('landscape').catch(()=>{});}catch(_){}};const off=e=>{if(activePointer!==null&&e.pointerId!==activePointer)return;e.preventDefault();keys[k]=false;b.classList.remove('is-pressed');activePointer=null};b.addEventListener('pointerdown',on);['pointerup','pointercancel','lostpointercapture'].forEach(n=>b.addEventListener(n,off));});
 window.addEventListener('blur',()=>{Object.keys(keys).forEach(k=>keys[k]=false);document.querySelectorAll('.ctrl').forEach(b=>b.classList.remove('is-pressed'))});
 document.getElementById('restart').addEventListener('click',()=>{document.getElementById('gameover').style.display='none';const game=window.cazadorGame;if(game){game.scene.stop('forest');game.scene.start('forest');}});
 window.addEventListener('gamepadconnected',()=>{const h=document.getElementById('hint');if(h)h.innerHTML='Mando conectado: cruceta o stick para moverte · A/sur para saltar · X/oeste o B/este para disparar';});
@@ -45,7 +45,7 @@ class Forest extends Phaser.Scene{
  preload(){this.load.svg('forestBg','./assets/forest.svg',{width:1920,height:540});this.load.svg('hunterSprite','./assets/hunter.svg',{width:96,height:128});this.load.svg('dogSprite','./assets/dog.svg',{width:112,height:72});this.load.svg('aoaoSprite','./assets/aoao.svg',{width:90,height:112});}
  create(){
   this.gameOver=false;const overlay=document.getElementById('gameover');if(overlay)overlay.style.display='none';
-  document.getElementById('hud').style.display='flex';document.getElementById('controls').style.display='flex';document.getElementById('hint').style.display='block';
+  document.getElementById('hud').style.display='flex';document.getElementById('controls').style.display='flex';document.getElementById('hint').style.display='block';document.getElementById('skipIntro').style.display='none';
   this.physics.world.setBounds(0,0,this.levelLength,540);
   // Fondo en segmentos pequeños: evita texturas/canvas gigantes que fallan en GPU móviles.
   // Cada tramo mide como máximo 1920 px y conserva el bosque continuo al desplazarse la cámara.
