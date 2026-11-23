@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#101812">
+<title>Diagnóstico gráfico · Cazador</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#101812;color:#f4e8c8;font-family:system-ui,sans-serif}body{padding:16px;max-width:900px;margin:auto}
+h1{font-size:22px;margin:4px 0 8px}p{color:#d5c7a4;line-height:1.4}.panel{background:#1d2b20;border:1px solid #756544;border-radius:12px;padding:12px;margin:12px 0}
+canvas{display:block;width:100%;height:auto;background:#080b09;border:2px solid #b99b62;border-radius:8px;touch-action:pan-y}
+#native{aspect-ratio:16/9}#phaserHost{width:100%;min-height:100px;overflow:hidden;border-radius:8px;background:#080b09}#phaserHost canvas{width:100%!important;height:auto!important;border:2px solid #b99b62}
+.status{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #ffffff20}.status:last-child{border:0}.value{font-weight:800}.ok{color:#9be2a4}.bad{color:#ff9c8f}.wait{color:#f2d17e}
+small{color:#bfb18f}button{background:#526343;color:white;border:1px solid #e2ca91;border-radius:10px;padding:12px 16px;font-weight:800;font-size:15px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#ffd0c8;font-size:12px}
+</style>
+</head>
+<body>
+<h1>CAZADOR · PRUEBA DE RENDERIZADO</h1>
+<p>Esta página no modifica la partida. Comprueba por separado el Canvas del navegador y el motor Phaser en tu iPhone.</p>
+<section class="panel">
+<h2>1. Canvas nativo de Safari</h2>
+<canvas id="native" width="960" height="540"></canvas>
+<div class="status"><span>Dibujo nativo</span><span id="nativeStatus" class="value wait">Pendiente</span></div>
+<small>Deberías ver cielo azul, montes verdes, suelo marrón y el texto CANVAS NATIVO OK.</small>
+</section>
+<section class="panel">
+<h2>2. Motor Phaser</h2>
+<div id="phaserHost"></div>
+<div class="status"><span>Librería Phaser</span><span id="libStatus" class="value wait">Cargando…</span></div>
+<div class="status"><span>Arranque del motor</span><span id="bootStatus" class="value wait">Pendiente</span></div>
+<div class="status"><span>Escena creada</span><span id="sceneStatus" class="value wait">Pendiente</span></div>
+<div class="status"><span>Actualización de escena</span><span id="updateStatus" class="value wait">Pendiente</span></div>
+<small>Deberías ver un cielo azul, árboles verdes, suelo marrón y un personaje amarillo dibujados por Phaser.</small>
+</section>
+<section class="panel">
+<h2>Resultado técnico</h2>
+<div class="status"><span>Navegador</span><span id="browser" class="value">Detectando…</span></div>
+<div class="status"><span>Tamaño de pantalla</span><span id="viewport" class="value">—</span></div>
+<div class="status"><span>Errores capturados</span><span id="errorCount" class="value">0</span></div>
+<pre id="errors">Sin errores registrados.</pre>
+<button id="retry" type="button">REINICIAR PRUEBA</button>
+</section>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const errors=[];
+ function status(id,msg,kind){const e=$(id);e.textContent=msg;e.className='value '+(kind||'wait');}
+ function logError(msg){errors.push(String(msg));$('errorCount').textContent=errors.length;$('errors').textContent=errors.join('\n');}
+ window.addEventListener('error',e=>logError((e.message||'Error')+' · '+(e.filename||'')+':'+(e.lineno||'')));
+ window.addEventListener('unhandledrejection',e=>logError('Promesa rechazada: '+(e.reason&&e.reason.message||e.reason)));
+ $('browser').textContent=navigator.userAgent;
+ $('viewport').textContent=window.innerWidth+' × '+window.innerHeight+' · DPR '+(window.devicePixelRatio||1);
+ function nativeTest(){
+  const c=$('native'),ctx=c.getContext('2d');
+  if(!ctx){status('nativeStatus','FALLÓ: sin contexto 2D','bad');logError('Safari no pudo crear un contexto Canvas 2D.');return;}
+  ctx.fillStyle='#78a9d1';ctx.fillRect(0,0,960,350);
+  ctx.fillStyle='#244b32';ctx.fillRect(0,350,960,190);
+  for(let i=0;i<12;i++){const x=i*86+20;ctx.fillStyle='#315b38';ctx.fillRect(x,190,24,250);ctx.beginPath();ctx.moveTo(x-48,230);ctx.lineTo(x+12,65+(i%3)*25);ctx.lineTo(x+72,230);ctx.fill();}
+  ctx.fillStyle='#8b633b';ctx.fillRect(0,455,960,85);
+  ctx.fillStyle='#fff1c8';ctx.font='bold 38px sans-serif';ctx.fillText('CANVAS NATIVO OK',38,70);
+  status('nativeStatus','OK · dibujo visible','ok');
+ }
+ function loadPhaser(){
+  status('libStatus','Cargando Phaser…','wait');
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js';
+  s.onload=()=>{if(!window.Phaser){status('libStatus','FALLÓ: objeto Phaser ausente','bad');return;}status('libStatus','OK · Phaser '+Phaser.VERSION,'ok');startPhaser();};
+  s.onerror=()=>{status('libStatus','FALLÓ: no se pudo descargar','bad');logError('No se pudo cargar Phaser desde jsDelivr. Comprueba la conexión o el bloqueo del CDN.');};
+  document.head.appendChild(s);
+ }
+ function startPhaser(){
+  try{
+   const scene={
+    key:'Diagnostic',
+    create:function(){
+     status('sceneStatus','OK · create() ejecutado','ok');
+     const g=this.add.graphics();
+     g.fillStyle(0x78a9d1,1);g.fillRect(0,0,960,350);
+     g.fillStyle(0x244b32,1);g.fillRect(0,350,960,190);
+     for(let i=0;i<12;i++){const x=i*86+20;g.fillStyle(0x315b38,1);g.fillRect(x,190,24,250);g.fillTriangle(x-48,230,x+12,65+(i%3)*25,x+72,230);}
+     g.fillStyle(0x8b633b,1);g.fillRect(0,455,960,85);
+     g.fillStyle(0xffdf70,1);g.fillRect(160,340,48,90);g.fillRect(153,322,62,24);
+     this.add.text(30,28,'PHASER CANVAS OK',{fontFamily:'sans-serif',fontSize:'34px',fontStyle:'bold',color:'#ffffff'});
+     this.add.text(30,78,'ESCENA Y GRAPHICS FUNCIONANDO',{fontFamily:'sans-serif',fontSize:'20px',color:'#ffffff'});
+     status('bootStatus','OK · motor iniciado','ok');
+     this.events.on('update',()=>status('updateStatus','OK · fotogramas activos','ok'));
+    }
+   };
+   const game=new Phaser.Game({type:Phaser.CANVAS,parent:'phaserHost',width:960,height:540,backgroundColor:'#080b09',banner:false,render:{antialias:false,pixelArt:true},scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[scene]});
+   window.__cazadorDiagnosticGame=game;
+   status('bootStatus','Creando motor…','wait');
+  }catch(e){status('bootStatus','FALLÓ al iniciar','bad');logError(e.stack||e.message||e);}
+ }
+ function run(){errors.length=0;$('errorCount').textContent='0';$('errors').textContent='Sin errores registrados.';status('nativeStatus','Pendiente','wait');status('libStatus','Cargando…','wait');status('bootStatus','Pendiente','wait');status('sceneStatus','Pendiente','wait');status('updateStatus','Pendiente','wait');nativeTest();if(window.__cazadorDiagnosticGame){window.__cazadorDiagnosticGame.destroy(true);window.__cazadorDiagnosticGame=null;}$('phaserHost').innerHTML='';loadPhaser();}
+ $('retry').addEventListener('click',run);
+ run();
+})();
+</script>
+</body>
+</html>
