@@ -46,7 +46,7 @@ class Forest extends Phaser.Scene{
  preload(){this.load.svg('forestBg','./assets/forest.svg',{width:1920,height:540});this.load.svg('hunterSprite','./assets/hunter.svg',{width:96,height:128});this.load.svg('dogSprite','./assets/dog.svg',{width:112,height:72});this.load.svg('aoaoSprite','./assets/aoao.svg',{width:90,height:112});}
  create(){
   this.gameOver=false;const overlay=document.getElementById('gameover');if(overlay)overlay.style.display='none';
-  document.getElementById('hud').style.display='flex';document.getElementById('controls').style.display='flex';document.getElementById('hint').style.display='block';
+  document.getElementById('hud').style.display='flex';document.getElementById('controls').style.display='flex';document.getElementById('hint').style.display='block';document.getElementById('skipIntro').style.display='none';
   this.physics.world.setBounds(0,0,this.levelLength,540);
   // Fondo en segmentos pequeños: evita texturas/canvas gigantes que fallan en GPU móviles.
   // Cada tramo mide como máximo 1920 px y conserva el bosque continuo al desplazarse la cámara.
