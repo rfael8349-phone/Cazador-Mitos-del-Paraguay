@@ -26,7 +26,7 @@
 <body><div id="game"></div><div id="hud"><span>CAZADOR · MITOS DEL PARAGUAY</span><span id="life">♥ ♥ ♥</span></div><div id="hint">Bosque del Yvyrá · Nivel 1<br>Encuentra y ahuyenta al espíritu del monte</div>
 <div id="controls"><div class="pad"><button type="button" class="ctrl" data-key="left">◀</button><button class="ctrl" data-key="right">▶</button></div><div class="pad actions"><button class="ctrl" data-key="jump" aria-label="Saltar">⬆</button><button class="ctrl" data-key="attack" aria-label="Atacar">✦</button><button class="ctrl" data-key="weapon" aria-label="Cambiar arma">⚔</button></div></div>
 <button id="skipIntro" type="button">SALTAR INTRODUCCIÓN »</button><div id="levelcomplete" style="display:none;position:fixed;inset:0;z-index:60;background:#080d0bdc;align-items:center;justify-content:center;text-align:center;padding:24px"><div style="background:#1d2b20;border:2px solid #d7bd82;border-radius:18px;padding:26px;max-width:340px;width:100%;box-shadow:0 12px 40px #0009"><div style="font:800 25px Georgia;color:#f4e8c8;margin-bottom:10px">El bosque queda en silencio</div><div style="color:#d9c69d;margin-bottom:20px">Has sobrevivido al primer encuentro. El camino continúa.</div><button id="playAgain" type="button" style="min-height:54px;width:100%;border:2px solid #e2ca91;border-radius:12px;background:#526343;color:white;font-size:17px;font-weight:800">↻ VOLVER A JUGAR</button></div></div><div id="gameover" style="display:none;position:fixed;inset:0;z-index:50;background:#080d0bdc;align-items:center;justify-content:center;text-align:center;padding:24px"><div style="background:#1d2b20;border:2px solid #d7bd82;border-radius:18px;padding:24px;max-width:320px;width:100%;box-shadow:0 12px 40px #0009"><div style="font:800 24px Georgia;color:#f4e8c8;margin-bottom:10px">Has caído en el monte</div><div style="color:#d9c69d;margin-bottom:18px">El camino aún no ha terminado.</div><button id="restart" type="button" style="min-height:54px;width:100%;border:2px solid #e2ca91;border-radius:12px;background:#526343;color:white;font-size:18px;font-weight:800">↻ VOLVER A JUGAR</button></div></div><script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
-<script src="./intro.js"></script>
+<script src="./intro.js?v=pixel-fallback-1"></script>
 <script>
 const keys={left:false,right:false,jump:false,attack:false,weapon:false};
 document.addEventListener('contextmenu',e=>e.preventDefault());
@@ -43,8 +43,23 @@ window.addEventListener('gamepadconnected',()=>{const h=document.getElementById(
 function readGamepad(){const pads=navigator.getGamepads?navigator.getGamepads():[];const p=Array.from(pads).find(x=>x&&x.connected);if(!p)return {left:false,right:false,jump:false,attack:false};const ax=p.axes?.[0]||0,b=p.buttons||[];return {left:ax<-.35||!!b[14]?.pressed,right:ax>.35||!!b[15]?.pressed,jump:!!b[0]?.pressed||!!b[12]?.pressed,attack:!!b[2]?.pressed||!!b[1]?.pressed||!!b[3]?.pressed};}
 class Forest extends Phaser.Scene{
  constructor(){super('forest');this.hp=3;this.hitWait=0;this.shotWait=0;this.elapsed=0;this.levelLength=38000;this.bossSpawned=false;this.projectiles=[];this.enemies=[];this.loot=[]}
- preload(){this.load.svg('forestBg','./assets/forest.svg',{width:1920,height:540});this.load.svg('hunterSprite','./assets/hunter.svg',{width:96,height:128});this.load.svg('dogSprite','./assets/dog.svg',{width:112,height:72});this.load.svg('aoaoSprite','./assets/aoao.svg',{width:90,height:112});}
+ preload(){}
  create(){
+
+  // Arte pixelada local: evita que un fallo de SVG deje el nivel en negro.
+  const g=this.make.graphics({x:0,y:0,add:false});
+  g.fillStyle(0x07111a);g.fillRect(0,0,960,540);g.fillStyle(0x101e22);g.fillRect(0,0,960,350);g.fillStyle(0x172a20);g.fillRect(0,350,960,190);
+  for(let i=0;i<14;i++){const x=i*76;g.fillStyle(0x263c2b);g.fillRect(x+20,80+(i%3)*22,18,360);g.fillRect(x-8,100+(i%4)*18,74,92);g.fillRect(x+5,55+(i%3)*24,58,70);}
+  g.fillStyle(0xc8d5d1);g.fillCircle(790,88,31);g.fillStyle(0x101e22);g.fillCircle(803,78,29);
+  g.fillStyle(0xd6dfc8);for(let i=0;i<35;i++)g.fillRect((i*137)%950,(i*71)%310,2,2);
+  g.generateTexture('forestPixel',960,540);g.clear();
+  g.fillStyle(0x29221b);g.fillRect(24,88,17,34);g.fillRect(55,88,17,34);g.fillStyle(0x8a603e);g.fillRect(18,116,27,9);g.fillRect(53,116,27,9);g.fillStyle(0xc2ad83);g.fillRect(17,43,62,55);g.fillStyle(0x762d2b);g.fillRect(17,58,62,9);g.fillStyle(0xb9825a);g.fillRect(35,22,30,27);g.fillStyle(0x30251d);g.fillRect(31,10,39,17);g.fillStyle(0x987446);g.fillRect(9,18,82,9);g.fillStyle(0x25231e);g.fillRect(75,49,12,5);g.fillRect(82,35,8,22);
+  g.generateTexture('hunterPixel',96,128);g.clear();
+  g.fillStyle(0x8b603c);g.fillRect(14,23,64,28);g.fillRect(65,13,25,29);g.fillStyle(0x4b3020);g.fillRect(68,5,10,18);g.fillRect(84,5,10,18);g.fillRect(20,46,10,17);g.fillRect(63,46,10,17);g.fillStyle(0xd8bd94);g.fillRect(80,31,17,10);g.fillStyle(0x120f0b);g.fillRect(85,23,4,4);
+  g.generateTexture('dogPixel',112,72);g.clear();
+  g.fillStyle(0x53634e);g.fillRect(17,32,56,65);g.fillRect(7,48,14,32);g.fillRect(69,48,14,32);g.fillStyle(0x8a9676);g.fillRect(26,14,39,35);g.fillStyle(0xddd09a);g.fillRect(9,6,12,29);g.fillRect(69,6,12,29);g.fillStyle(0xf4d36b);g.fillRect(29,30,8,8);g.fillRect(53,30,8,8);g.fillStyle(0x1b211a);g.fillRect(32,33,3,4);g.fillRect(56,33,3,4);
+  g.generateTexture('aoaoPixel',90,112);g.destroy();
+
   this.gameOver=false;this.levelComplete=false;const overlay=document.getElementById('gameover');if(overlay)overlay.style.display='none';const victory=document.getElementById('levelcomplete');if(victory)victory.style.display='none';
   document.getElementById('hud').style.display='flex';document.getElementById('controls').style.display='flex';document.getElementById('hint').style.display='block';document.getElementById('skipIntro').style.display='none';
   this.physics.world.setBounds(0,0,this.levelLength,540);
@@ -52,13 +67,13 @@ class Forest extends Phaser.Scene{
   // Cada tramo mide como máximo 1920 px y conserva el bosque continuo al desplazarse la cámara.
   for(let x=0;x<this.levelLength;x+=1920){
    const width=Math.min(1920,this.levelLength-x);
-   this.add.image(x+width/2,270,'forestBg').setDisplaySize(width,540).setDepth(-20);
+   this.add.image(x+width/2,270,'forestPixel').setDisplaySize(width,540).setDepth(-20);
   }
   // Texturas propias: suelo, protagonista, espíritu, bala y jefe.
   let g=this.make.graphics({x:0,y:0,add:false});g.fillStyle(0x59452b,1);g.fillRect(0,0,64,32);g.fillStyle(0x819052,1);g.fillRect(0,0,64,5);g.generateTexture('groundTile',64,32);g.destroy();
   this.makeHunter();this.makeGhost();this.generatorStats={segments:0,enemies:0,ammo:0,platforms:0};
   this.ground=this.physics.add.staticGroup();for(let x=0;x<this.levelLength;x+=1024){const width=Math.min(1024,this.levelLength-x);const floor=this.ground.create(x+width/2,462,'groundTile');floor.setDisplaySize(width,32).refreshBody();}
-  this.player=this.physics.add.sprite(150,370,'hunterSprite').setDisplaySize(56,76).setCollideWorldBounds(true);this.player.body.setSize(28,54).setOffset(10,5);this.playerBaseScaleX=this.player.scaleX;this.playerBaseScaleY=this.player.scaleY;
+  this.player=this.physics.add.sprite(150,370,'hunterPixel').setDisplaySize(56,76).setCollideWorldBounds(true);this.player.body.setSize(28,54).setOffset(10,5);this.playerBaseScaleX=this.player.scaleX;this.playerBaseScaleY=this.player.scaleY;
   this.physics.add.collider(this.player,this.ground);
   this.dog=this.add.container(112,405);this.drawDog(this.dog);
   this.cameras.main.setBounds(0,0,this.levelLength,540);this.cameras.main.startFollow(this.player,true,.08,.08);
@@ -69,7 +84,7 @@ class Forest extends Phaser.Scene{
    const n=Math.floor(x/560)+20261122;let seed=(n*1664525+1013904223)>>>0;
    const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
    this.generatorStats.segments++;
-   if(rnd()>.28){const y=350+Math.floor(rnd()*55);const e=this.physics.add.sprite(x,y,'aoaoSprite').setDisplaySize(54,68).setTint(0xb8c9ae);e.body.setAllowGravity(false);e.setData('hp',2);this.physics.add.overlap(this.player,e,()=>this.touchEnemy(e));e.setVelocityX(rnd()>.5?28:-28);e.setData('seedDirection',Math.sign(e.body.velocity.x));this.enemies.push(e);this.generatorStats.enemies++;}
+   if(rnd()>.28){const y=350+Math.floor(rnd()*55);const e=this.physics.add.sprite(x,y,'aoaoPixel').setDisplaySize(54,68).setTint(0xb8c9ae);e.body.setAllowGravity(false);e.setData('hp',2);this.physics.add.overlap(this.player,e,()=>this.touchEnemy(e));e.setVelocityX(rnd()>.5?28:-28);e.setData('seedDirection',Math.sign(e.body.velocity.x));this.enemies.push(e);this.generatorStats.enemies++;}
    if(rnd()>.55){const a=this.physics.add.staticImage(x+220,405,'groundTile');a.setScale(1.8,.35).refreshBody();this.physics.add.collider(this.player,a);this.generatorStats.platforms++;}
    if(rnd()>.52){const item=this.physics.add.staticImage(x+300,405,'groundTile').setTint(0xe8c65a);item.setScale(.35,.35).refreshBody();item.setData('ammo',5);this.physics.add.overlap(this.player,item,()=>{if(item.active){this.ammo+=5;item.destroy();this.updateHud();}});this.loot.push(item);this.generatorStats.ammo++;}
   };
@@ -85,14 +100,14 @@ class Forest extends Phaser.Scene{
   this.timerText=this.add.text(480,18,'FASE: 00:00 / 03:20',{fontFamily:'monospace',fontSize:'15px',color:'#f4e8c8'}).setOrigin(.5,0).setScrollFactor(0);
   this.ammoText=this.add.text(800,38,'✦ '+this.ammo,{fontFamily:'monospace',fontSize:'14px',color:'#f4e8c8'}).setScrollFactor(0);
  }
- drawDog(c){let a=this.add.image(0,0,'dogSprite').setDisplaySize(58,38);c.add(a);this.tweens.add({targets:a,scaleY:a.scaleY*1.045,duration:460,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});}
+ drawDog(c){let a=this.add.image(0,0,'dogPixel').setDisplaySize(58,38);c.add(a);this.tweens.add({targets:a,scaleY:a.scaleY*1.045,duration:460,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});}
  makeHunter(){let g=this.add.graphics();g.fillStyle(0x30251d,1);g.fillRect(12,37,13,23);g.fillRect(28,37,13,23);g.fillStyle(0x4b3426,1);g.fillRect(8,57,20,6);g.fillRect(27,57,20,6);g.fillStyle(0xd9c69b,1);g.fillRect(10,12,33,34);g.fillStyle(0x9e2930,1);g.fillRect(11,12,31,7);g.fillStyle(0x8a6039,1);g.fillRect(10,0,34,8);g.fillRect(4,7,47,5);g.fillStyle(0xd6aa76,1);g.fillRect(20,20,15,14);g.fillStyle(0x30251d,1);g.fillRect(31,25,3,3);g.generateTexture('hunter',56,66);g.destroy();let gh=this.add.graphics();gh.fillStyle(0xc4d4bc,.9);gh.fillEllipse(26,28,42,52);gh.fillStyle(0x1b2923,1);gh.fillCircle(19,24,4);gh.fillCircle(32,24,4);gh.fillStyle(0x9e2930,1);gh.fillEllipse(26,42,15,5);gh.generateTexture('ghost',54,65);gh.destroy();let b=this.make.graphics({x:0,y:0,add:false});b.fillStyle(0xffd36b,1);b.fillRect(0,0,12,5);b.generateTexture('bullet',12,5);b.destroy();let boss=this.make.graphics({x:0,y:0,add:false});boss.fillStyle(0x24251d,1);boss.fillEllipse(55,55,100,100);boss.fillStyle(0xe7c66b,1);boss.fillCircle(38,45,7);boss.fillCircle(70,45,7);boss.fillStyle(0x8b2525,1);boss.fillEllipse(55,76,38,12);boss.generateTexture('boss',110,110);boss.destroy()}
  makeGhost(){}
  updateHud(){document.getElementById('life').textContent='♥ '.repeat(this.hp)+'  ·  ✦ '+this.ammo;if(this.ammoText)this.ammoText.setText('✦ '+this.ammo);if(this.weaponText)this.updateWeaponHud()}
  updateWeaponHud(){if(this.weaponText){const w=this.weapons[this.weaponIndex];this.weaponText.setText(w.symbol+' '+w.name+(w.id==='rifle'?' · '+this.ammo+' BALAS':'')+(w.id==='machete'&&this.blessingLevel?' · BENDICIÓN '+this.blessingLevel:'')+(this.combatReady?' · ALERTA':''));}}
  cycleWeapon(){for(let i=0;i<this.weapons.length;i++){this.weaponIndex=(this.weaponIndex+1)%this.weapons.length;if(this.weapons[this.weaponIndex].id!=='rifle'||this.ammo>0)break;}this.updateWeaponHud();document.getElementById('hint').innerHTML='Arma equipada: '+this.weapons[this.weaponIndex].name;}
  grantBlessing(){this.blessingLevel=Math.min(3,this.blessingLevel+1);this.macheteDamageBonus=this.blessingLevel;this.updateWeaponHud();document.getElementById('hint').innerHTML='Bendición del monte: el machete ha ganado poder ('+this.blessingLevel+'/3).';}
- spawnAmbush(){const px=this.player.x;this.combatReady=true;if(this.ammo>0){this.weaponIndex=0;}else{this.weaponIndex=1;}this.updateWeaponHud();for(let i=0;i<2;i++){const x=px+(i===0?440:560);const e=this.physics.add.sprite(x,365+(i*18),'aoaoSprite').setDisplaySize(54,68).setTint(0xd6d1b0);e.body.setAllowGravity(false);e.setData('hp',3);e.setData('seedDirection',-1);e.setVelocityX(-45);this.physics.add.overlap(this.player,e,()=>this.touchEnemy(e));this.enemies.push(e);}this.ambushActive=2600;document.getElementById('hint').innerHTML='¡EMBOSCADA! El perro ha detectado algo. Prepárate.';}
+ spawnAmbush(){const px=this.player.x;this.combatReady=true;if(this.ammo>0){this.weaponIndex=0;}else{this.weaponIndex=1;}this.updateWeaponHud();for(let i=0;i<2;i++){const x=px+(i===0?440:560);const e=this.physics.add.sprite(x,365+(i*18),'aoaoPixel').setDisplaySize(54,68).setTint(0xd6d1b0);e.body.setAllowGravity(false);e.setData('hp',3);e.setData('seedDirection',-1);e.setVelocityX(-45);this.physics.add.overlap(this.player,e,()=>this.touchEnemy(e));this.enemies.push(e);}this.ambushActive=2600;document.getElementById('hint').innerHTML='¡EMBOSCADA! El perro ha detectado algo. Prepárate.';}
  touchEnemy(e){if(!e.active||this.player.y>e.y+65)return;if(this.hitWait<=0){this.hp=Math.max(0,this.hp-1);this.hitWait=900;this.updateHud();if(!this.hp){this.physics.pause();this.gameOver=true;document.getElementById('controls').style.display='none';document.getElementById('hint').style.display='none';document.getElementById('gameover').style.display='flex';}}}
  shoot(){if(this.shotWait>0)return;if(this.ammo<=0){this.weaponIndex=1;this.updateWeaponHud();document.getElementById('hint').innerHTML='Sin munición. ¡Sigue con el machete!';return;}this.shotWait=260;this.ammo--;let dir=this.player.flipX?-1:1;let b=this.physics.add.image(this.player.x+dir*30,this.player.y+3,'bullet');b.setVelocityX(dir*540);b.body.setAllowGravity(false);this.physics.add.overlap(b,this.enemies,(shot,e)=>{if(!e.active)return;e.setData('hp',e.getData('hp')-1);shot.destroy();if(e.getData('hp')<=0){let x=e.x,y=e.y;this.dropDogItem(x,y);e.destroy();if(Math.random()<.42){let drop=this.physics.add.staticImage(x,y,'bullet').setTint(0xe8c65a);drop.setScale(1.5).refreshBody();this.physics.add.overlap(this.player,drop,()=>{if(drop.active){this.ammo+=6;drop.destroy();this.updateHud()}})}}});if(this.boss&&this.boss.active)this.physics.add.overlap(b,this.boss,()=>{if(b.active&&this.boss.active){b.destroy();this.bossHp--;if(this.bossHp<=0){this.boss.destroy();document.getElementById('hint').innerHTML='¡Jefe derrotado! Has completado la primera fase.'}}});this.time.delayedCall(1800,()=>{if(b.active)b.destroy()});this.projectiles.push(b);this.updateHud()}
  spawnBoss(){this.bossSpawned=true;this.bossHp=12;this.boss=this.physics.add.sprite(this.levelLength-650,365,'boss').setImmovable(true);this.boss.body.setAllowGravity(false);this.physics.add.overlap(this.player,this.boss,()=>this.touchEnemy(this.boss));document.getElementById('hint').innerHTML='¡EL AO AO MAYOR! Dispara para derrotarlo.'}
@@ -119,7 +134,7 @@ class Forest extends Phaser.Scene{
   if(p.x>=this.levelLength-120&&this.boss&&!this.boss.active&&!this.levelComplete){this.levelComplete=true;document.getElementById('hint').style.display='none';document.getElementById('controls').style.display='none';document.getElementById('levelcomplete').style.display='flex';this.physics.pause();}
  }
 }
-const config={type:Phaser.AUTO,parent:'game',width:960,height:540,backgroundColor:'#080b09',pixelArt:false,physics:{default:'arcade',arcade:{gravity:{y:900},debug:false}},scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[Intro,Forest]};
+const config={type:Phaser.AUTO,parent:'game',width:960,height:540,backgroundColor:'#080b09',pixelArt:true,physics:{default:'arcade',arcade:{gravity:{y:900},debug:false}},scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[Intro,Forest]};
 window.cazadorGame=new Phaser.Game(config);
 window.cazadorGame.events.on('boot',()=>{console.info('[Cazador] Motor Phaser iniciado');});
 window.cazadorGame.events.on('ready',()=>{console.info('[Cazador] Motor Phaser listo');});
