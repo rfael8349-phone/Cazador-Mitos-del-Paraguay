@@ -63,11 +63,27 @@ class Forest extends Phaser.Scene{
   this.gameOver=false;this.levelComplete=false;const overlay=document.getElementById('gameover');if(overlay)overlay.style.display='none';const victory=document.getElementById('levelcomplete');if(victory)victory.style.display='none';
   document.getElementById('hud').style.display='flex';document.getElementById('controls').style.display='flex';document.getElementById('hint').style.display='block';document.getElementById('skipIntro').style.display='none';
   this.physics.world.setBounds(0,0,this.levelLength,540);
-  // Fondo en segmentos pequeños: evita texturas/canvas gigantes que fallan en GPU móviles.
-  // Cada tramo mide como máximo 1920 px y conserva el bosque continuo al desplazarse la cámara.
-  for(let x=0;x<this.levelLength;x+=1920){
-   const width=Math.min(1920,this.levelLength-x);
-   this.add.image(x+width/2,270,'forestPixel').setDisplaySize(width,540).setDepth(-20);
+  // Fondo dibujado directamente en Graphics: no depende de generateTexture,
+  // imágenes GPU ni de texturas que Safari/iOS pueda dejar en negro.
+  // Se divide en tramos cortos para mantener el coste de renderizado bajo.
+  for(let x=0;x<this.levelLength;x+=960){
+   const width=Math.min(960,this.levelLength-x);
+   const bg=this.add.graphics();
+   bg.setPosition(x,0).setDepth(-30);
+   bg.fillStyle(0x07111a,1); bg.fillRect(0,0,width,540);
+   bg.fillStyle(0x101e22,1); bg.fillRect(0,0,width,350);
+   bg.fillStyle(0x172a20,1); bg.fillRect(0,350,width,190);
+   for(let i=0;i<14;i++){
+    const tx=(i*76)%width;
+    bg.fillStyle(0x263c2b,1);
+    bg.fillRect(tx+20,80+(i%3)*22,18,360);
+    bg.fillRect(tx-8,100+(i%4)*18,74,92);
+    bg.fillRect(tx+5,55+(i%3)*24,58,70);
+   }
+   bg.fillStyle(0xc8d5d1,1); bg.fillCircle(790,88,31);
+   bg.fillStyle(0x101e22,1); bg.fillCircle(803,78,29);
+   bg.fillStyle(0xd6dfc8,1);
+   for(let i=0;i<20;i++) bg.fillRect((i*137)%width,(i*71)%310,2,2);
   }
   // Texturas propias: suelo, protagonista, espíritu, bala y jefe.
   let g=this.make.graphics({x:0,y:0,add:false});g.fillStyle(0x59452b,1);g.fillRect(0,0,64,32);g.fillStyle(0x819052,1);g.fillRect(0,0,64,5);g.generateTexture('groundTile',64,32);g.destroy();
@@ -134,7 +150,7 @@ class Forest extends Phaser.Scene{
   if(p.x>=this.levelLength-120&&this.boss&&!this.boss.active&&!this.levelComplete){this.levelComplete=true;document.getElementById('hint').style.display='none';document.getElementById('controls').style.display='none';document.getElementById('levelcomplete').style.display='flex';this.physics.pause();}
  }
 }
-const config={type:Phaser.AUTO,parent:'game',width:960,height:540,backgroundColor:'#080b09',pixelArt:true,physics:{default:'arcade',arcade:{gravity:{y:900},debug:false}},scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[Intro,Forest]};
+const config={type:Phaser.CANVAS,parent:'game',width:960,height:540,backgroundColor:'#080b09',pixelArt:true,physics:{default:'arcade',arcade:{gravity:{y:900},debug:false}},scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[Intro,Forest]};
 window.cazadorGame=new Phaser.Game(config);
 window.cazadorGame.events.on('boot',()=>{console.info('[Cazador] Motor Phaser iniciado');});
 window.cazadorGame.events.on('ready',()=>{console.info('[Cazador] Motor Phaser listo');});
