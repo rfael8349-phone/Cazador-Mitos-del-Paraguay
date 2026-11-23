@@ -30,6 +30,7 @@
 <script>
 const keys={left:false,right:false,jump:false,attack:false,weapon:false};
 document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('pointerdown',()=>{try{if(screen.orientation?.lock)screen.orientation.lock('landscape').catch(()=>{});}catch(_){}},{once:true});
 // Bloqueo adicional del zoom gestual y del doble toque en Safari/iOS.
 ['gesturestart','gesturechange','gestureend'].forEach(n=>document.addEventListener(n,e=>e.preventDefault(),{passive:false}));
 document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
